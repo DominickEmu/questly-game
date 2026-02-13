@@ -137,174 +137,216 @@ class TaskTrackerApp:
         for widget in self.root.winfo_children():
             widget.destroy()
         
-        # Configure fantasy color scheme
-        self.bg_color = "#2C1810"  # Dark brown parchment
-        self.paper_color = "#F4E4BC"  # Aged paper
-        self.text_color = "#3D2817"  # Dark brown ink
-        self.accent_color = "#8B4513"  # Saddle brown
-        self.gold_color = "#D4AF37"  # Elven gold
-        self.green_color = "#4A7C59"  # Forest green
+        # Crisp rustic color scheme - modern but warm
+        self.bg_color = "#F8F6F3"  # Warm off-white background
+        self.card_color = "#FFFFFF"  # Clean white cards
+        self.text_color = "#3A3A3A"  # Warm dark gray text
+        self.text_secondary = "#6B6B6B"  # Muted gray
+        self.accent_color = "#8B6F47"  # Warm brown/rustic accent
+        self.accent_hover = "#7A5F3A"  # Darker brown
+        self.success_color = "#6B8E5A"  # Muted green
+        self.danger_color = "#C97D60"  # Warm terracotta red
+        self.warning_color = "#D4A574"  # Warm amber
+        self.border_color = "#E5DDD5"  # Warm beige border
+        self.highlight_color = "#F5EDE0"  # Warm cream highlight
         
         self.root.configure(bg=self.bg_color)
         
-        # Main container with parchment effect
-        main_frame = tk.Frame(self.root, bg=self.bg_color, padx=20, pady=20)
+        # Main container
+        main_frame = tk.Frame(self.root, bg=self.bg_color, padx=24, pady=24)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Title with fantasy styling
+        # Title with modern styling
         title_frame = tk.Frame(main_frame, bg=self.bg_color)
-        title_frame.pack(fill=tk.X, pady=(0, 15))
+        title_frame.pack(fill=tk.X, pady=(0, 20))
         
         title_label = tk.Label(
             title_frame,
-            text="📜 Elven Quest Journal 📜",
-            font=("Times New Roman", 24, "bold"),
+            text="📜 Quest Journal",
+            font=("Georgia", 26, "bold"),
             bg=self.bg_color,
-            fg=self.gold_color
+            fg=self.accent_color
         )
         title_label.pack()
         
         subtitle = tk.Label(
             title_frame,
-            text="Chronicle of Tasks and Endeavors",
-            font=("Times New Roman", 12, "italic"),
+            text="Organize your tasks and adventures",
+            font=("Segoe UI", 10),
             bg=self.bg_color,
-            fg=self.paper_color
+            fg=self.text_secondary
         )
-        subtitle.pack()
+        subtitle.pack(pady=(6, 0))
         
         # Date navigation and view mode
         date_frame = tk.Frame(main_frame, bg=self.bg_color)
-        date_frame.pack(fill=tk.X, pady=(0, 15))
+        date_frame.pack(fill=tk.X, pady=(0, 16))
         
-        # View mode toggle
-        view_mode_frame = tk.Frame(date_frame, bg=self.bg_color)
+        # View mode toggle - rustic segmented style
+        view_mode_frame = tk.Frame(date_frame, bg=self.bg_color, relief=tk.FLAT, bd=0)
         view_mode_frame.pack(side=tk.LEFT)
         
         tk.Label(
             view_mode_frame,
-            text="📅 View:",
-            font=("Times New Roman", 11, "bold"),
+            text="View:",
+            font=("Segoe UI", 10),
             bg=self.bg_color,
-            fg=self.paper_color
-        ).pack(side=tk.LEFT, padx=5)
+            fg=self.text_secondary
+        ).pack(side=tk.LEFT, padx=(0, 10), pady=8)
         
         self.view_mode_var = tk.StringVar(value=self.view_mode)
         day_view_btn = tk.Radiobutton(
             view_mode_frame,
-            text="📖 Day",
+            text="Day",
             variable=self.view_mode_var,
             value="day",
             command=self.toggle_view_mode,
-            font=("Times New Roman", 10),
+            font=("Segoe UI", 10),
             bg=self.bg_color,
-            fg=self.paper_color,
-            selectcolor=self.bg_color,
+            fg=self.text_color,
+            selectcolor=self.highlight_color,
             activebackground=self.bg_color,
-            activeforeground=self.gold_color
+            activeforeground=self.accent_color,
+            indicatoron=0,
+            width=8,
+            relief=tk.FLAT,
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color
         )
-        day_view_btn.pack(side=tk.LEFT, padx=5)
+        day_view_btn.pack(side=tk.LEFT, padx=2)
         
         week_view_btn = tk.Radiobutton(
             view_mode_frame,
-            text="📆 Week",
+            text="Week",
             variable=self.view_mode_var,
             value="week",
             command=self.toggle_view_mode,
-            font=("Times New Roman", 10),
+            font=("Segoe UI", 10),
             bg=self.bg_color,
-            fg=self.paper_color,
-            selectcolor=self.bg_color,
+            fg=self.text_color,
+            selectcolor=self.highlight_color,
             activebackground=self.bg_color,
-            activeforeground=self.gold_color
+            activeforeground=self.accent_color,
+            indicatoron=0,
+            width=8,
+            relief=tk.FLAT,
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color
         )
-        week_view_btn.pack(side=tk.LEFT, padx=5)
+        week_view_btn.pack(side=tk.LEFT, padx=2)
         
-        # Date navigation (for day view)
+        # Date navigation (for day view) - modern style
         if self.view_mode == "day":
             nav_frame = tk.Frame(date_frame, bg=self.bg_color)
             nav_frame.pack(side=tk.RIGHT)
             
             prev_btn = tk.Button(
                 nav_frame,
-                text="◀️ Previous",
+                text="◀",
                 command=self.previous_day,
-                font=("Times New Roman", 10),
-                bg=self.accent_color,
-                fg="white",
-                relief=tk.RAISED,
-                bd=2,
-                cursor="hand2"
+                font=("Segoe UI", 12),
+                bg=self.card_color,
+                fg=self.text_color,
+                relief=tk.FLAT,
+                bd=1,
+                cursor="hand2",
+                width=3,
+                highlightthickness=1,
+                highlightcolor=self.border_color,
+                highlightbackground=self.border_color,
+                activebackground=self.highlight_color,
+                activeforeground=self.text_color
             )
-            prev_btn.pack(side=tk.LEFT, padx=5)
+            prev_btn.pack(side=tk.LEFT, padx=2)
             
             self.date_label = tk.Label(
                 nav_frame,
                 text=self.format_date(self.current_date),
-                font=("Times New Roman", 14, "bold"),
+                font=("Georgia", 13, "bold"),
                 bg=self.bg_color,
-                fg=self.gold_color,
-                width=25
+                fg=self.accent_color,
+                width=28
             )
             self.date_label.pack(side=tk.LEFT, padx=10)
             
             next_btn = tk.Button(
                 nav_frame,
-                text="Next ▶️",
+                text="▶",
                 command=self.next_day,
-                font=("Times New Roman", 10),
-                bg=self.accent_color,
-                fg="white",
-                relief=tk.RAISED,
-                bd=2,
-                cursor="hand2"
+                font=("Segoe UI", 12),
+                bg=self.card_color,
+                fg=self.text_color,
+                relief=tk.FLAT,
+                bd=1,
+                cursor="hand2",
+                width=3,
+                highlightthickness=1,
+                highlightcolor=self.border_color,
+                highlightbackground=self.border_color,
+                activebackground=self.highlight_color,
+                activeforeground=self.text_color
             )
-            next_btn.pack(side=tk.LEFT, padx=5)
+            next_btn.pack(side=tk.LEFT, padx=2)
             
             today_btn = tk.Button(
                 nav_frame,
-                text="🗓️ Today",
+                text="Today",
                 command=self.go_to_today,
-                font=("Times New Roman", 10),
-                bg=self.green_color,
+                font=("Segoe UI", 10),
+                bg=self.accent_color,
                 fg="white",
-                relief=tk.RAISED,
-                bd=2,
-                cursor="hand2"
+                relief=tk.FLAT,
+                bd=0,
+                cursor="hand2",
+                padx=14,
+                pady=7,
+                activebackground=self.accent_hover,
+                activeforeground="white"
             )
-            today_btn.pack(side=tk.LEFT, padx=5)
+            today_btn.pack(side=tk.LEFT, padx=(10, 0))
         
         # Content area with two columns
         content_frame = tk.Frame(main_frame, bg=self.bg_color)
         content_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Left panel - Labels
-        left_panel = tk.Frame(content_frame, bg=self.paper_color, relief=tk.RAISED, bd=3)
-        left_panel.pack(side=tk.LEFT, fill=tk.BOTH, padx=(0, 10), expand=False, ipadx=10, ipady=10)
-        left_panel.config(width=250)
+        # Left panel - Labels - modern card style
+        left_panel = tk.Frame(content_frame, bg=self.card_color, relief=tk.FLAT, bd=0)
+        left_panel.pack(side=tk.LEFT, fill=tk.BOTH, padx=(0, 12), expand=False)
+        left_panel.config(width=260)
+        
+        # Add subtle shadow effect with border
+        label_title_frame = tk.Frame(left_panel, bg=self.border_color, height=1)
+        label_title_frame.pack(fill=tk.X)
         
         label_title = tk.Label(
             left_panel,
-            text="🏷️ Labels & Symbols",
-            font=("Times New Roman", 14, "bold"),
-            bg=self.paper_color,
-            fg=self.text_color
+            text="Labels",
+            font=("Georgia", 14, "bold"),
+            bg=self.card_color,
+            fg=self.accent_color
         )
-        label_title.pack(pady=(0, 10))
+        label_title.pack(pady=(18, 14), padx=18, anchor=tk.W)
         
-        # Label list with scrollbar
-        label_list_frame = tk.Frame(left_panel, bg=self.paper_color)
-        label_list_frame.pack(fill=tk.BOTH, expand=True)
+        # Label list with scrollbar - modern style
+        label_list_frame = tk.Frame(left_panel, bg=self.card_color)
+        label_list_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 12))
         
         self.label_listbox = tk.Listbox(
             label_list_frame,
-            font=("Times New Roman", 11),
-            bg=self.paper_color,
+            font=("Segoe UI", 10),
+            bg=self.card_color,
             fg=self.text_color,
-            selectbackground=self.green_color,
+            selectbackground=self.accent_color,
             selectforeground="white",
             relief=tk.FLAT,
-            bd=2
+            bd=1,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color
         )
         self.label_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
@@ -315,108 +357,151 @@ class TaskTrackerApp:
         # Store mapping of listbox index to label name for easier lookup
         self.label_index_map = {}
         
-        # Label buttons
-        label_btn_frame = tk.Frame(left_panel, bg=self.paper_color)
-        label_btn_frame.pack(fill=tk.X, pady=(10, 0))
+        # Label buttons - modern flat style
+        label_btn_frame = tk.Frame(left_panel, bg=self.card_color)
+        label_btn_frame.pack(fill=tk.X, pady=(0, 16), padx=16)
+        
+        def create_modern_button(parent, text, command, bg_color, fg_color="white", is_primary=False):
+            btn = tk.Button(
+                parent,
+                text=text,
+                command=command,
+                font=("Segoe UI", 10),
+                bg=bg_color,
+                fg=fg_color,
+                relief=tk.FLAT,
+                bd=0,
+                cursor="hand2",
+                pady=8,
+                activebackground=bg_color if not is_primary else self.accent_hover,
+                activeforeground=fg_color
+            )
+            if is_primary:
+                btn.config(relief=tk.FLAT, bd=0)
+            return btn
         
         add_label_btn = tk.Button(
             label_btn_frame,
             text="➕ Add Label",
             command=self.add_label,
-            font=("Times New Roman", 10),
-            bg=self.green_color,
+            font=("Segoe UI", 10),
+            bg=self.accent_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=9,
+            activebackground=self.accent_hover,
+            activeforeground="white"
         )
-        add_label_btn.pack(fill=tk.X, pady=2)
+        add_label_btn.pack(fill=tk.X, pady=(0, 7))
         
         edit_label_btn = tk.Button(
             label_btn_frame,
-            text="✏️ Edit Label",
+            text="✏️ Edit",
             command=self.edit_label,
-            font=("Times New Roman", 10),
-            bg=self.accent_color,
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color,
+            relief=tk.FLAT,
+            bd=1,
+            cursor="hand2",
+            pady=8,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color,
+            activebackground=self.highlight_color,
+            activeforeground=self.text_color
         )
-        edit_label_btn.pack(fill=tk.X, pady=2)
+        edit_label_btn.pack(fill=tk.X, pady=(0, 7))
         
         delete_label_btn = tk.Button(
             label_btn_frame,
-            text="🗑️ Delete Label",
+            text="🗑️ Delete",
             command=self.delete_label,
-            font=("Times New Roman", 10),
-            bg="#8B0000",
+            font=("Segoe UI", 10),
+            bg=self.danger_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=9,
+            activebackground="#B86A4F",
+            activeforeground="white"
         )
-        delete_label_btn.pack(fill=tk.X, pady=2)
+        delete_label_btn.pack(fill=tk.X, pady=(0, 7))
         
         filter_btn = tk.Button(
             label_btn_frame,
-            text="🔍 Filter by Label",
+            text="🔍 Filter",
             command=self.filter_by_label,
-            font=("Times New Roman", 10),
-            bg=self.gold_color,
+            font=("Segoe UI", 10),
+            bg=self.card_color,
             fg=self.text_color,
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=1,
+            cursor="hand2",
+            pady=8,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color,
+            activebackground=self.highlight_color,
+            activeforeground=self.text_color
         )
-        filter_btn.pack(fill=tk.X, pady=2)
+        filter_btn.pack(fill=tk.X, pady=(0, 7))
         
         clear_filter_btn = tk.Button(
             label_btn_frame,
             text="🌐 Show All",
             command=self.clear_filter,
-            font=("Times New Roman", 10),
-            bg=self.accent_color,
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color,
+            relief=tk.FLAT,
+            bd=1,
+            cursor="hand2",
+            pady=8,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color,
+            activebackground=self.highlight_color,
+            activeforeground=self.text_color
         )
-        clear_filter_btn.pack(fill=tk.X, pady=2)
+        clear_filter_btn.pack(fill=tk.X)
         
-        # Right panel - Tasks
-        right_panel = tk.Frame(content_frame, bg=self.paper_color, relief=tk.RAISED, bd=3)
-        right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, ipadx=10, ipady=10)
+        # Right panel - Tasks - modern card style
+        right_panel = tk.Frame(content_frame, bg=self.card_color, relief=tk.FLAT, bd=0)
+        right_panel.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
-        task_title_frame = tk.Frame(right_panel, bg=self.paper_color)
-        task_title_frame.pack(fill=tk.X, pady=(0, 10))
+        task_title_frame = tk.Frame(right_panel, bg=self.card_color)
+        task_title_frame.pack(fill=tk.X, pady=(16, 12), padx=16)
         
         if self.view_mode == "week":
             task_title = tk.Label(
                 task_title_frame,
-                text="📆 Weekly Quest Overview",
-                font=("Times New Roman", 14, "bold"),
-                bg=self.paper_color,
-                fg=self.text_color
+                text="Weekly Overview",
+                font=("Georgia", 14, "bold"),
+                bg=self.card_color,
+                fg=self.accent_color
             )
             task_title.pack(side=tk.LEFT)
         else:
             task_title = tk.Label(
                 task_title_frame,
-                text="📋 Quests & Tasks",
-                font=("Times New Roman", 14, "bold"),
-                bg=self.paper_color,
-                fg=self.text_color
+                text="Tasks",
+                font=("Georgia", 14, "bold"),
+                bg=self.card_color,
+                fg=self.accent_color
             )
             task_title.pack(side=tk.LEFT)
         
         if self.filter_label:
             filter_indicator = tk.Label(
                 task_title_frame,
-                text=f"🔍 Filtered: {self.labels[self.filter_label].symbol} {self.filter_label}",
-                font=("Times New Roman", 10, "italic"),
-                bg=self.paper_color,
-                fg=self.green_color
+                text=f"Filtered: {self.labels[self.filter_label].symbol} {self.filter_label}",
+                font=("Segoe UI", 9),
+                bg=self.card_color,
+                fg=self.text_secondary
             )
             filter_indicator.pack(side=tk.RIGHT)
         
@@ -427,20 +512,23 @@ class TaskTrackerApp:
             self.setup_day_view(right_panel)
     
     def setup_day_view(self, parent):
-        # Task list with scrollbar
-        task_list_frame = tk.Frame(parent, bg=self.paper_color)
-        task_list_frame.pack(fill=tk.BOTH, expand=True)
+        # Task list with scrollbar - modern style
+        task_list_frame = tk.Frame(parent, bg=self.card_color)
+        task_list_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 12))
         
         self.task_listbox = tk.Listbox(
             task_list_frame,
-            font=("Times New Roman", 11),
-            bg=self.paper_color,
+            font=("Segoe UI", 10),
+            bg=self.card_color,
             fg=self.text_color,
-            selectbackground=self.green_color,
+            selectbackground=self.accent_color,
             selectforeground="white",
             relief=tk.FLAT,
-            bd=2,
-            height=15
+            bd=1,
+            height=15,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color
         )
         self.task_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         
@@ -448,74 +536,86 @@ class TaskTrackerApp:
         task_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.task_listbox.config(yscrollcommand=task_scrollbar.set)
         
-        # Task buttons
-        task_btn_frame = tk.Frame(parent, bg=self.paper_color)
-        task_btn_frame.pack(fill=tk.X, pady=(10, 0))
+        # Task buttons - modern style
+        task_btn_frame = tk.Frame(parent, bg=self.card_color)
+        task_btn_frame.pack(fill=tk.X, pady=(0, 16), padx=16)
         
         add_task_btn = tk.Button(
             task_btn_frame,
-            text="➕ New Quest",
+            text="➕ New Task",
             command=self.add_task,
-            font=("Times New Roman", 10),
-            bg=self.green_color,
+            font=("Segoe UI", 10),
+            bg=self.accent_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground=self.accent_hover,
+            activeforeground="white"
         )
-        add_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        add_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6))
         
         edit_task_btn = tk.Button(
             task_btn_frame,
-            text="✏️ Edit Quest",
+            text="✏️ Edit",
             command=self.edit_task,
-            font=("Times New Roman", 10),
-            bg=self.accent_color,
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color,
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground=self.border_color,
+            activeforeground=self.text_color
         )
-        edit_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        edit_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)
         
         complete_task_btn = tk.Button(
             task_btn_frame,
             text="✅ Complete",
             command=self.toggle_complete,
-            font=("Times New Roman", 10),
-            bg=self.gold_color,
-            fg=self.text_color,
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.success_color,
+            fg="white",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground="#38A169",
+            activeforeground="white"
         )
-        complete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        complete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)
         
         delete_task_btn = tk.Button(
             task_btn_frame,
             text="🗑️ Delete",
             command=self.delete_task,
-            font=("Times New Roman", 10),
-            bg="#8B0000",
+            font=("Segoe UI", 10),
+            bg=self.danger_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground="#E53E3E",
+            activeforeground="white"
         )
-        delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(3, 0))
     
     def setup_week_view(self, parent):
         # Calculate week start (Monday)
         week_start = self.current_date - timedelta(days=self.current_date.weekday())
         week_days = [week_start + timedelta(days=i) for i in range(7)]
         
-        # Create scrollable canvas for week view
-        week_canvas_frame = tk.Frame(parent, bg=self.paper_color)
-        week_canvas_frame.pack(fill=tk.BOTH, expand=True)
+        # Create scrollable canvas for week view - modern style
+        week_canvas_frame = tk.Frame(parent, bg=self.card_color)
+        week_canvas_frame.pack(fill=tk.BOTH, expand=True, padx=16, pady=(0, 12))
         
-        week_canvas = tk.Canvas(week_canvas_frame, bg=self.paper_color, highlightthickness=0)
+        week_canvas = tk.Canvas(week_canvas_frame, bg=self.card_color, highlightthickness=0)
         week_scrollbar = tk.Scrollbar(week_canvas_frame, orient=tk.VERTICAL, command=week_canvas.yview)
-        week_content = tk.Frame(week_canvas, bg=self.paper_color)
+        week_content = tk.Frame(week_canvas, bg=self.card_color)
         
         week_content.bind(
             "<Configure>",
@@ -532,26 +632,26 @@ class TaskTrackerApp:
         self.week_task_frames = {}
         
         for i, (day_date, day_name_full) in enumerate(zip(week_days, day_names)):
-            day_frame = tk.Frame(week_content, bg=self.paper_color, relief=tk.RAISED, bd=2)
-            day_frame.grid(row=0, column=i, padx=5, pady=5, sticky="nsew")
+            day_frame = tk.Frame(week_content, bg=self.bg_color, relief=tk.FLAT, bd=0)
+            day_frame.grid(row=0, column=i, padx=4, pady=4, sticky="nsew")
             week_content.grid_columnconfigure(i, weight=1)
             
-            # Day header
+            # Day header - rustic style
             day_header = tk.Frame(day_frame, bg=self.accent_color)
             day_header.pack(fill=tk.X)
             
             day_label = tk.Label(
                 day_header,
-                text=f"{day_emojis[i]} {day_name_full[:3]}\n{day_date.strftime('%m/%d')}",
-                font=("Times New Roman", 11, "bold"),
+                text=f"{day_name_full[:3]}\n{day_date.strftime('%m/%d')}",
+                font=("Georgia", 10, "bold"),
                 bg=self.accent_color,
                 fg="white"
             )
-            day_label.pack(pady=5)
+            day_label.pack(pady=9)
             
-            # Tasks for this day
-            day_tasks_frame = tk.Frame(day_frame, bg=self.paper_color)
-            day_tasks_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            # Tasks for this day - modern card style
+            day_tasks_frame = tk.Frame(day_frame, bg=self.bg_color)
+            day_tasks_frame.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
             
             tasks_for_day = self.get_tasks_for_date(day_date)
             self.week_task_frames[day_date] = day_tasks_frame
@@ -559,16 +659,16 @@ class TaskTrackerApp:
             if not tasks_for_day:
                 no_tasks = tk.Label(
                     day_tasks_frame,
-                    text="No quests",
-                    font=("Times New Roman", 9, "italic"),
-                    bg=self.paper_color,
-                    fg="#888888"
+                    text="No tasks",
+                    font=("Segoe UI", 9),
+                    bg=self.bg_color,
+                    fg=self.text_secondary
                 )
-                no_tasks.pack(pady=10)
+                no_tasks.pack(pady=12)
             else:
                 for task in tasks_for_day:
-                    task_frame = tk.Frame(day_tasks_frame, bg="#E8D5B7", relief=tk.RAISED, bd=1)
-                    task_frame.pack(fill=tk.X, pady=2, padx=2)
+                    task_frame = tk.Frame(day_tasks_frame, bg=self.card_color, relief=tk.FLAT, bd=0)
+                    task_frame.pack(fill=tk.X, pady=3, padx=2)
                     
                     label_str = " ".join([self.labels[label].symbol for label in task.labels if label in self.labels])
                     status = "✅" if task.completed else "⭕"
@@ -581,72 +681,87 @@ class TaskTrackerApp:
                     task_label = tk.Label(
                         task_frame,
                         text=task_text,
-                        font=("Times New Roman", 9),
-                        bg="#E8D5B7",
-                        fg=self.text_color,
+                        font=("Segoe UI", 9),
+                        bg=self.card_color,
+                        fg=self.text_color if not task.completed else self.text_secondary,
                         wraplength=120,
                         justify=tk.LEFT
                     )
-                    task_label.pack(anchor=tk.W, padx=5, pady=3)
+                    task_label.pack(anchor=tk.W, padx=8, pady=6)
         
         week_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         week_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # Task buttons
-        task_btn_frame = tk.Frame(parent, bg=self.paper_color)
-        task_btn_frame.pack(fill=tk.X, pady=(10, 0))
+        # Task buttons - rustic style
+        task_btn_frame = tk.Frame(parent, bg=self.card_color)
+        task_btn_frame.pack(fill=tk.X, pady=(0, 16), padx=16)
         
         add_task_btn = tk.Button(
             task_btn_frame,
-            text="➕ New Quest",
+            text="➕ New Task",
             command=self.add_task,
-            font=("Times New Roman", 10),
-            bg=self.green_color,
+            font=("Segoe UI", 10),
+            bg=self.accent_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground=self.accent_hover,
+            activeforeground="white"
         )
-        add_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        add_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 6))
         
         edit_task_btn = tk.Button(
             task_btn_frame,
-            text="✏️ Edit Quest",
+            text="✏️ Edit",
             command=self.edit_task,
-            font=("Times New Roman", 10),
-            bg=self.accent_color,
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.card_color,
+            fg=self.text_color,
+            relief=tk.FLAT,
+            bd=1,
+            cursor="hand2",
+            pady=10,
+            highlightthickness=1,
+            highlightcolor=self.border_color,
+            highlightbackground=self.border_color,
+            activebackground=self.highlight_color,
+            activeforeground=self.text_color
         )
-        edit_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        edit_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)
         
         complete_task_btn = tk.Button(
             task_btn_frame,
             text="✅ Complete",
             command=self.toggle_complete,
-            font=("Times New Roman", 10),
-            bg=self.gold_color,
-            fg=self.text_color,
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            font=("Segoe UI", 10),
+            bg=self.success_color,
+            fg="white",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground="#5A7A4A",
+            activeforeground="white"
         )
-        complete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        complete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=3)
         
         delete_task_btn = tk.Button(
             task_btn_frame,
             text="🗑️ Delete",
             command=self.delete_task,
-            font=("Times New Roman", 10),
-            bg="#8B0000",
+            font=("Segoe UI", 10),
+            bg=self.danger_color,
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            pady=10,
+            activebackground="#B86A4F",
+            activeforeground="white"
         )
-        delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(3, 0))
     
     def format_date(self, d: date) -> str:
         """Format date for display"""
@@ -1018,7 +1133,7 @@ class TaskDialog:
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
         self.dialog.geometry("600x650")
-        self.dialog.configure(bg="#2C1810")
+        self.dialog.configure(bg="#F5F7FA")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
@@ -1028,49 +1143,49 @@ class TaskDialog:
         y = (self.dialog.winfo_screenheight() // 2) - (650 // 2)
         self.dialog.geometry(f"600x650+{x}+{y}")
         
-        main_frame = tk.Frame(self.dialog, bg="#F4E4BC", padx=20, pady=20)
+        main_frame = tk.Frame(self.dialog, bg="#FFFFFF", padx=24, pady=24)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Title
         tk.Label(
             main_frame,
-            text="Title:",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Title",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        self.title_entry = tk.Entry(main_frame, font=("Times New Roman", 11), width=50)
-        self.title_entry.pack(fill=tk.X, pady=(0, 15))
+        self.title_entry = tk.Entry(main_frame, font=("Segoe UI", 11), width=50, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.title_entry.pack(fill=tk.X, pady=(0, 20), ipady=8)
         self.title_entry.insert(0, initial_data.get('title', ''))
         
         # Description
         tk.Label(
             main_frame,
-            text="Description:",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Description",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        desc_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        desc_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+        desc_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        desc_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 20))
         
-        self.desc_text = tk.Text(desc_frame, font=("Times New Roman", 11), width=50, height=6)
+        self.desc_text = tk.Text(desc_frame, font=("Segoe UI", 11), width=50, height=6, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0", wrap=tk.WORD)
         self.desc_text.pack(fill=tk.BOTH, expand=True)
         self.desc_text.insert("1.0", initial_data.get('description', ''))
         
         # Task Type
         tk.Label(
             main_frame,
-            text="Task Type:",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Task Type",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        type_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        type_frame.pack(fill=tk.X, pady=(0, 15))
+        type_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        type_frame.pack(fill=tk.X, pady=(0, 20))
         
         self.task_type_var = tk.StringVar(value=initial_data.get('task_type', 'oneshot'))
         
@@ -1080,13 +1195,14 @@ class TaskDialog:
             variable=self.task_type_var,
             value="oneshot",
             command=self.update_task_type_fields,
-            font=("Times New Roman", 10),
-            bg="#F4E4BC",
-            fg="#3D2817",
-            selectcolor="#F4E4BC",
-            activebackground="#F4E4BC"
+            font=("Segoe UI", 10),
+            bg="#FFFFFF",
+            fg="#2D3748",
+            selectcolor="#4299E1",
+            activebackground="#FFFFFF",
+            activeforeground="#2D3748"
         )
-        oneshot_radio.pack(side=tk.LEFT, padx=10)
+        oneshot_radio.pack(side=tk.LEFT, padx=(0, 16))
         
         weekly_radio = tk.Radiobutton(
             type_frame,
@@ -1094,31 +1210,32 @@ class TaskDialog:
             variable=self.task_type_var,
             value="weekly",
             command=self.update_task_type_fields,
-            font=("Times New Roman", 10),
-            bg="#F4E4BC",
-            fg="#3D2817",
-            selectcolor="#F4E4BC",
-            activebackground="#F4E4BC"
+            font=("Segoe UI", 10),
+            bg="#FFFFFF",
+            fg="#2D3748",
+            selectcolor="#4299E1",
+            activebackground="#FFFFFF",
+            activeforeground="#2D3748"
         )
-        weekly_radio.pack(side=tk.LEFT, padx=10)
+        weekly_radio.pack(side=tk.LEFT)
         
         # Date fields container
-        self.date_fields_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        self.date_fields_frame.pack(fill=tk.X, pady=(0, 15))
+        self.date_fields_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        self.date_fields_frame.pack(fill=tk.X, pady=(0, 20))
         
         # One-shot date field
-        self.oneshot_date_frame = tk.Frame(self.date_fields_frame, bg="#F4E4BC")
+        self.oneshot_date_frame = tk.Frame(self.date_fields_frame, bg="#FFFFFF")
         
         tk.Label(
             self.oneshot_date_frame,
-            text="Due Date (YYYY-MM-DD):",
-            font=("Times New Roman", 10, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Due Date (YYYY-MM-DD)",
+            font=("Segoe UI", 10, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        self.due_date_entry = tk.Entry(self.oneshot_date_frame, font=("Times New Roman", 10), width=20)
-        self.due_date_entry.pack(anchor=tk.W)
+        self.due_date_entry = tk.Entry(self.oneshot_date_frame, font=("Segoe UI", 10), width=20, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.due_date_entry.pack(anchor=tk.W, ipady=6)
         if initial_data.get('due_date'):
             try:
                 due = datetime.fromisoformat(initial_data['due_date']).date()
@@ -1127,19 +1244,19 @@ class TaskDialog:
                 pass
         
         # Weekly task fields
-        self.weekly_fields_frame = tk.Frame(self.date_fields_frame, bg="#F4E4BC")
+        self.weekly_fields_frame = tk.Frame(self.date_fields_frame, bg="#FFFFFF")
         
         # Start date
         tk.Label(
             self.weekly_fields_frame,
-            text="Start Date (YYYY-MM-DD):",
-            font=("Times New Roman", 10, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Start Date (YYYY-MM-DD)",
+            font=("Segoe UI", 10, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        self.start_date_entry = tk.Entry(self.weekly_fields_frame, font=("Times New Roman", 10), width=20)
-        self.start_date_entry.pack(anchor=tk.W, pady=(0, 10))
+        self.start_date_entry = tk.Entry(self.weekly_fields_frame, font=("Segoe UI", 10), width=20, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.start_date_entry.pack(anchor=tk.W, pady=(0, 12), ipady=6)
         if initial_data.get('start_date'):
             try:
                 start = datetime.fromisoformat(initial_data['start_date']).date()
@@ -1150,14 +1267,14 @@ class TaskDialog:
         # Days of week
         tk.Label(
             self.weekly_fields_frame,
-            text="Days of Week:",
-            font=("Times New Roman", 10, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Days of Week",
+            font=("Segoe UI", 10, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        days_frame = tk.Frame(self.weekly_fields_frame, bg="#F4E4BC")
-        days_frame.pack(anchor=tk.W, pady=(0, 10))
+        days_frame = tk.Frame(self.weekly_fields_frame, bg="#FFFFFF")
+        days_frame.pack(anchor=tk.W, pady=(0, 12))
         
         self.days_vars = {}
         day_names_short = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -1170,24 +1287,25 @@ class TaskDialog:
                 days_frame,
                 text=day_name,
                 variable=var,
-                font=("Times New Roman", 9),
-                bg="#F4E4BC",
-                fg="#3D2817",
-                selectcolor="#F4E4BC",
-                activebackground="#F4E4BC"
+                font=("Segoe UI", 9),
+                bg="#FFFFFF",
+                fg="#2D3748",
+                selectcolor="#4299E1",
+                activebackground="#FFFFFF",
+                activeforeground="#2D3748"
             )
-            check.pack(side=tk.LEFT, padx=5)
+            check.pack(side=tk.LEFT, padx=6)
         
         # Repeat frequency
         tk.Label(
             self.weekly_fields_frame,
-            text="Repeat Every N Weeks:",
-            font=("Times New Roman", 10, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Repeat Every N Weeks",
+            font=("Segoe UI", 10, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        freq_frame = tk.Frame(self.weekly_fields_frame, bg="#F4E4BC")
+        freq_frame = tk.Frame(self.weekly_fields_frame, bg="#FFFFFF")
         freq_frame.pack(anchor=tk.W)
         
         self.repeat_freq_var = tk.StringVar(value=str(initial_data.get('repeat_frequency', 1)))
@@ -1196,17 +1314,22 @@ class TaskDialog:
             from_=1,
             to=52,
             textvariable=self.repeat_freq_var,
-            font=("Times New Roman", 10),
-            width=5
+            font=("Segoe UI", 10),
+            width=5,
+            relief=tk.FLAT,
+            bd=0,
+            highlightthickness=1,
+            highlightcolor="#4299E1",
+            highlightbackground="#E2E8F0"
         )
-        freq_spinbox.pack(side=tk.LEFT, padx=5)
+        freq_spinbox.pack(side=tk.LEFT, padx=(0, 8))
         
         tk.Label(
             freq_frame,
             text="weeks",
-            font=("Times New Roman", 10),
-            bg="#F4E4BC",
-            fg="#3D2817"
+            font=("Segoe UI", 10),
+            bg="#FFFFFF",
+            fg="#718096"
         ).pack(side=tk.LEFT)
         
         # Update fields based on initial type
@@ -1215,31 +1338,31 @@ class TaskDialog:
         # Labels
         tk.Label(
             main_frame,
-            text="Labels:",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Labels",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        label_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        label_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+        label_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        label_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 20))
         
         if not labels:
             no_labels = tk.Label(
                 label_frame,
                 text="No labels available. Create labels first!",
-                font=("Times New Roman", 9, "italic"),
-                bg="#F4E4BC",
-                fg="#888888"
+                font=("Segoe UI", 9),
+                bg="#FFFFFF",
+                fg="#718096"
             )
             no_labels.pack(anchor=tk.W, pady=5)
         
         self.label_vars = {}
         if labels:
             # Create a scrollable frame for labels
-            label_canvas = tk.Canvas(label_frame, bg="#F4E4BC", highlightthickness=0, height=80)
+            label_canvas = tk.Canvas(label_frame, bg="#FFFFFF", highlightthickness=0, height=80)
             label_scrollbar = tk.Scrollbar(label_frame, orient=tk.VERTICAL, command=label_canvas.yview)
-            label_scrollable_frame = tk.Frame(label_canvas, bg="#F4E4BC")
+            label_scrollable_frame = tk.Frame(label_canvas, bg="#FFFFFF")
             
             def configure_scroll_region(e):
                 label_canvas.configure(scrollregion=label_canvas.bbox("all"))
@@ -1264,44 +1387,53 @@ class TaskDialog:
                     label_scrollable_frame,
                     text=label_name,
                     variable=var,
-                    font=("Times New Roman", 10),
-                    bg="#F4E4BC",
-                    fg="#3D2817",
-                    selectcolor="#F4E4BC",
-                    activebackground="#F4E4BC"
+                    font=("Segoe UI", 10),
+                    bg="#FFFFFF",
+                    fg="#2D3748",
+                    selectcolor="#4299E1",
+                    activebackground="#FFFFFF",
+                    activeforeground="#2D3748"
                 )
-                check.pack(anchor=tk.W, pady=2)
+                check.pack(anchor=tk.W, pady=3)
             
             label_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             label_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # Buttons
-        btn_frame = tk.Frame(main_frame, bg="#F4E4BC")
+        # Buttons - modern style
+        btn_frame = tk.Frame(main_frame, bg="#FFFFFF")
         btn_frame.pack(fill=tk.X)
         
         tk.Button(
             btn_frame,
-            text="💾 Save",
+            text="Save",
             command=self.save,
-            font=("Times New Roman", 10),
-            bg="#4A7C59",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4299E1",
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
-        ).pack(side=tk.RIGHT, padx=5)
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            padx=24,
+            pady=10,
+            activebackground="#3182CE",
+            activeforeground="white"
+        ).pack(side=tk.RIGHT, padx=(8, 0))
         
         tk.Button(
             btn_frame,
-            text="❌ Cancel",
+            text="Cancel",
             command=self.dialog.destroy,
-            font=("Times New Roman", 10),
-            bg="#8B0000",
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
-        ).pack(side=tk.RIGHT, padx=5)
+            font=("Segoe UI", 10),
+            bg="#E2E8F0",
+            fg="#2D3748",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            padx=24,
+            pady=10,
+            activebackground="#CBD5E0",
+            activeforeground="#2D3748"
+        ).pack(side=tk.RIGHT)
         
         self.dialog.focus_set()
         self.title_entry.focus_set()
@@ -1376,47 +1508,47 @@ class LabelDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("400x400")
-        self.dialog.configure(bg="#2C1810")
+        self.dialog.geometry("400x450")
+        self.dialog.configure(bg="#F5F7FA")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
         # Center the dialog
         self.dialog.update_idletasks()
         x = (self.dialog.winfo_screenwidth() // 2) - (400 // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (400 // 2)
-        self.dialog.geometry(f"400x400+{x}+{y}")
+        y = (self.dialog.winfo_screenheight() // 2) - (450 // 2)
+        self.dialog.geometry(f"400x450+{x}+{y}")
         
-        main_frame = tk.Frame(self.dialog, bg="#F4E4BC", padx=20, pady=20)
+        main_frame = tk.Frame(self.dialog, bg="#FFFFFF", padx=24, pady=24)
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # Name
         tk.Label(
             main_frame,
-            text="Label Name:",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Label Name",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        self.name_entry = tk.Entry(main_frame, font=("Times New Roman", 11), width=30)
-        self.name_entry.pack(fill=tk.X, pady=(0, 15))
+        self.name_entry = tk.Entry(main_frame, font=("Segoe UI", 11), width=30, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.name_entry.pack(fill=tk.X, pady=(0, 20), ipady=8)
         self.name_entry.insert(0, initial_name)
         
         # Symbol (emoji)
         tk.Label(
             main_frame,
-            text="Symbol (Emoji):",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Symbol (Emoji)",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        symbol_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        symbol_frame.pack(fill=tk.X, pady=(0, 15))
+        symbol_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        symbol_frame.pack(fill=tk.X, pady=(0, 20))
         
-        self.symbol_entry = tk.Entry(symbol_frame, font=("Times New Roman", 16), width=10)
-        self.symbol_entry.pack(side=tk.LEFT, padx=(0, 10))
+        self.symbol_entry = tk.Entry(symbol_frame, font=("Segoe UI", 18), width=8, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.symbol_entry.pack(side=tk.LEFT, padx=(0, 12), ipady=4)
         self.symbol_entry.insert(0, initial_symbol)
         
         # Emoji suggestions - expanded list
@@ -1425,21 +1557,21 @@ class LabelDialog:
             "🗺️", "🧙", "🧝", "🐉", "🦄", "🌳", "🍄", "🌺", "🦋", "🦅", "🐺", "🦌", "🌊", "⛰️", "🌌",
             "🎯", "🏹", "⚡", "🌟", "💫", "🌠", "🎨", "🎭", "🎪", "🎬", "📸", "🎮", "🎲", "🃏", "🎴"
         ]
-        suggestion_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        suggestion_frame.pack(fill=tk.X, pady=(0, 15))
+        suggestion_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        suggestion_frame.pack(fill=tk.X, pady=(0, 20))
         
         tk.Label(
             suggestion_frame,
             text="Quick select:",
-            font=("Times New Roman", 9),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(side=tk.LEFT, padx=(0, 5))
+            font=("Segoe UI", 9),
+            bg="#FFFFFF",
+            fg="#718096"
+        ).pack(side=tk.LEFT, padx=(0, 8))
         
         # Create scrollable emoji buttons
-        emoji_canvas = tk.Canvas(suggestion_frame, bg="#F4E4BC", height=40, highlightthickness=0)
+        emoji_canvas = tk.Canvas(suggestion_frame, bg="#FFFFFF", height=44, highlightthickness=0)
         emoji_scroll = tk.Scrollbar(suggestion_frame, orient=tk.HORIZONTAL, command=emoji_canvas.xview)
-        emoji_inner = tk.Frame(emoji_canvas, bg="#F4E4BC")
+        emoji_inner = tk.Frame(emoji_canvas, bg="#FFFFFF")
         
         emoji_inner.bind(
             "<Configure>",
@@ -1454,12 +1586,14 @@ class LabelDialog:
                 emoji_inner,
                 text=emoji,
                 command=lambda e=emoji: self.symbol_entry.delete(0, tk.END) or self.symbol_entry.insert(0, e),
-                font=("Times New Roman", 12),
-                bg="#F4E4BC",
+                font=("Segoe UI", 14),
+                bg="#FFFFFF",
                 relief=tk.FLAT,
-                cursor="hand2"
+                cursor="hand2",
+                activebackground="#F7FAFC",
+                bd=0
             )
-            btn.pack(side=tk.LEFT, padx=2)
+            btn.pack(side=tk.LEFT, padx=3)
         
         emoji_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         emoji_scroll.pack(side=tk.RIGHT, fill=tk.Y)
@@ -1467,61 +1601,71 @@ class LabelDialog:
         # Color
         tk.Label(
             main_frame,
-            text="Color (hex code):",
-            font=("Times New Roman", 11, "bold"),
-            bg="#F4E4BC",
-            fg="#3D2817"
-        ).pack(anchor=tk.W, pady=(0, 5))
+            text="Color (hex code)",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FFFFFF",
+            fg="#2D3748"
+        ).pack(anchor=tk.W, pady=(0, 8))
         
-        color_frame = tk.Frame(main_frame, bg="#F4E4BC")
-        color_frame.pack(fill=tk.X, pady=(0, 15))
+        color_frame = tk.Frame(main_frame, bg="#FFFFFF")
+        color_frame.pack(fill=tk.X, pady=(0, 20))
         
-        self.color_entry = tk.Entry(color_frame, font=("Times New Roman", 11), width=15)
-        self.color_entry.pack(side=tk.LEFT, padx=(0, 10))
+        self.color_entry = tk.Entry(color_frame, font=("Segoe UI", 11), width=15, relief=tk.FLAT, bd=0, highlightthickness=1, highlightcolor="#4299E1", highlightbackground="#E2E8F0")
+        self.color_entry.pack(side=tk.LEFT, padx=(0, 12), ipady=6)
         self.color_entry.insert(0, initial_color)
         
-        # Color suggestions
-        color_suggestions = ["#8B7355", "#4A7C59", "#D4AF37", "#8B4513", "#8B0000", "#4B0082", "#006400"]
+        # Color suggestions - modern style
+        color_suggestions = ["#4299E1", "#48BB78", "#ED8936", "#F56565", "#9F7AEA", "#38B2AC", "#805AD5"]
         for color in color_suggestions:
             btn = tk.Button(
                 color_frame,
                 text="●",
                 fg=color,
-                font=("Times New Roman", 16),
-                bg="#F4E4BC",
+                font=("Segoe UI", 18),
+                bg="#FFFFFF",
                 relief=tk.FLAT,
                 cursor="hand2",
+                bd=0,
+                activebackground="#F7FAFC",
                 command=lambda c=color: self.color_entry.delete(0, tk.END) or self.color_entry.insert(0, c)
             )
-            btn.pack(side=tk.LEFT, padx=2)
+            btn.pack(side=tk.LEFT, padx=4)
         
-        # Buttons
-        btn_frame = tk.Frame(main_frame, bg="#F4E4BC")
+        # Buttons - modern style
+        btn_frame = tk.Frame(main_frame, bg="#FFFFFF")
         btn_frame.pack(fill=tk.X)
         
         tk.Button(
             btn_frame,
-            text="💾 Save",
+            text="Save",
             command=self.save,
-            font=("Times New Roman", 10),
-            bg="#4A7C59",
+            font=("Segoe UI", 10, "bold"),
+            bg="#4299E1",
             fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
-        ).pack(side=tk.RIGHT, padx=5)
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            padx=24,
+            pady=10,
+            activebackground="#3182CE",
+            activeforeground="white"
+        ).pack(side=tk.RIGHT, padx=(8, 0))
         
         tk.Button(
             btn_frame,
-            text="❌ Cancel",
+            text="Cancel",
             command=self.dialog.destroy,
-            font=("Times New Roman", 10),
-            bg="#8B0000",
-            fg="white",
-            relief=tk.RAISED,
-            bd=2,
-            cursor="hand2"
-        ).pack(side=tk.RIGHT, padx=5)
+            font=("Segoe UI", 10),
+            bg="#E2E8F0",
+            fg="#2D3748",
+            relief=tk.FLAT,
+            bd=0,
+            cursor="hand2",
+            padx=24,
+            pady=10,
+            activebackground="#CBD5E0",
+            activeforeground="#2D3748"
+        ).pack(side=tk.RIGHT)
         
         self.dialog.focus_set()
         self.name_entry.focus_set()
