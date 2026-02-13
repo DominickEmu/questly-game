@@ -2,15 +2,24 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, date
 from typing import List, Dict, Optional
+from calendar import day_name
 
 class Task:
-    def __init__(self, title: str, description: str = "", labels: List[str] = None, completed: bool = False):
+    def __init__(self, title: str, description: str = "", labels: List[str] = None, 
+                 completed: bool = False, task_type: str = "oneshot", 
+                 due_date: str = None, days_of_week: List[int] = None, 
+                 start_date: str = None, repeat_frequency: int = 1):
         self.title = title
         self.description = description
         self.labels = labels if labels else []
         self.completed = completed
+        self.task_type = task_type  # "oneshot" or "weekly"
+        self.due_date = due_date  # ISO format date string for oneshot tasks
+        self.days_of_week = days_of_week if days_of_week else []  # 0=Monday, 6=Sunday
+        self.start_date = start_date  # ISO format date string for weekly tasks
+        self.repeat_frequency = repeat_frequency  # Every N weeks
         self.created_at = datetime.now().isoformat()
         self.id = datetime.now().timestamp()
     
@@ -20,6 +29,11 @@ class Task:
             'description': self.description,
             'labels': self.labels,
             'completed': self.completed,
+            'task_type': self.task_type,
+            'due_date': self.due_date,
+            'days_of_week': self.days_of_week,
+            'start_date': self.start_date,
+            'repeat_frequency': self.repeat_frequency,
             'created_at': self.created_at,
             'id': self.id
         }
@@ -30,11 +44,48 @@ class Task:
             title=data['title'],
             description=data.get('description', ''),
             labels=data.get('labels', []),
-            completed=data.get('completed', False)
+            completed=data.get('completed', False),
+            task_type=data.get('task_type', 'oneshot'),
+            due_date=data.get('due_date'),
+            days_of_week=data.get('days_of_week', []),
+            start_date=data.get('start_date'),
+            repeat_frequency=data.get('repeat_frequency', 1)
         )
         task.created_at = data.get('created_at', datetime.now().isoformat())
         task.id = data.get('id', datetime.now().timestamp())
         return task
+    
+    def is_due_on_date(self, target_date: date) -> bool:
+        """Check if this task is due on the given date"""
+        if self.task_type == "oneshot":
+            if not self.due_date:
+                return False
+            try:
+                due = datetime.fromisoformat(self.due_date).date()
+                return due == target_date
+            except:
+                return False
+        elif self.task_type == "weekly":
+            if not self.start_date or not self.days_of_week:
+                return False
+            try:
+                start = datetime.fromisoformat(self.start_date).date()
+                # Check if target_date is on one of the selected days
+                day_of_week = target_date.weekday()  # 0=Monday, 6=Sunday
+                if day_of_week not in self.days_of_week:
+                    return False
+                
+                # Check if target_date is after start_date
+                if target_date < start:
+                    return False
+                
+                # Check if it's the right week frequency
+                days_diff = (target_date - start).days
+                weeks_diff = days_diff // 7
+                return weeks_diff % self.repeat_frequency == 0
+            except:
+                return False
+        return False
 
 class Label:
     def __init__(self, name: str, symbol: str = "📋", color: str = "#8B7355"):
@@ -61,13 +112,17 @@ class TaskTrackerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Elven Quest Journal")
-        self.root.geometry("1000x700")
+        self.root.geometry("1200x800")
         
         # Data storage
         self.tasks: List[Task] = []
         self.labels: Dict[str, Label] = {}
         self.filter_label: Optional[str] = None
         self.label_index_map: Dict[int, str] = {}
+        
+        # Date and view management
+        self.current_date = date.today()
+        self.view_mode = "day"  # "day" or "week"
         
         # Load data
         self.load_data()
@@ -117,6 +172,107 @@ class TaskTrackerApp:
             fg=self.paper_color
         )
         subtitle.pack()
+        
+        # Date navigation and view mode
+        date_frame = tk.Frame(main_frame, bg=self.bg_color)
+        date_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # View mode toggle
+        view_mode_frame = tk.Frame(date_frame, bg=self.bg_color)
+        view_mode_frame.pack(side=tk.LEFT)
+        
+        tk.Label(
+            view_mode_frame,
+            text="📅 View:",
+            font=("Times New Roman", 11, "bold"),
+            bg=self.bg_color,
+            fg=self.paper_color
+        ).pack(side=tk.LEFT, padx=5)
+        
+        self.view_mode_var = tk.StringVar(value=self.view_mode)
+        day_view_btn = tk.Radiobutton(
+            view_mode_frame,
+            text="📖 Day",
+            variable=self.view_mode_var,
+            value="day",
+            command=self.toggle_view_mode,
+            font=("Times New Roman", 10),
+            bg=self.bg_color,
+            fg=self.paper_color,
+            selectcolor=self.bg_color,
+            activebackground=self.bg_color,
+            activeforeground=self.gold_color
+        )
+        day_view_btn.pack(side=tk.LEFT, padx=5)
+        
+        week_view_btn = tk.Radiobutton(
+            view_mode_frame,
+            text="📆 Week",
+            variable=self.view_mode_var,
+            value="week",
+            command=self.toggle_view_mode,
+            font=("Times New Roman", 10),
+            bg=self.bg_color,
+            fg=self.paper_color,
+            selectcolor=self.bg_color,
+            activebackground=self.bg_color,
+            activeforeground=self.gold_color
+        )
+        week_view_btn.pack(side=tk.LEFT, padx=5)
+        
+        # Date navigation (for day view)
+        if self.view_mode == "day":
+            nav_frame = tk.Frame(date_frame, bg=self.bg_color)
+            nav_frame.pack(side=tk.RIGHT)
+            
+            prev_btn = tk.Button(
+                nav_frame,
+                text="◀️ Previous",
+                command=self.previous_day,
+                font=("Times New Roman", 10),
+                bg=self.accent_color,
+                fg="white",
+                relief=tk.RAISED,
+                bd=2,
+                cursor="hand2"
+            )
+            prev_btn.pack(side=tk.LEFT, padx=5)
+            
+            self.date_label = tk.Label(
+                nav_frame,
+                text=self.format_date(self.current_date),
+                font=("Times New Roman", 14, "bold"),
+                bg=self.bg_color,
+                fg=self.gold_color,
+                width=25
+            )
+            self.date_label.pack(side=tk.LEFT, padx=10)
+            
+            next_btn = tk.Button(
+                nav_frame,
+                text="Next ▶️",
+                command=self.next_day,
+                font=("Times New Roman", 10),
+                bg=self.accent_color,
+                fg="white",
+                relief=tk.RAISED,
+                bd=2,
+                cursor="hand2"
+            )
+            next_btn.pack(side=tk.LEFT, padx=5)
+            
+            today_btn = tk.Button(
+                nav_frame,
+                text="🗓️ Today",
+                command=self.go_to_today,
+                font=("Times New Roman", 10),
+                bg=self.green_color,
+                fg="white",
+                relief=tk.RAISED,
+                bd=2,
+                cursor="hand2"
+            )
+            today_btn.pack(side=tk.LEFT, padx=5)
         
         # Content area with two columns
         content_frame = tk.Frame(main_frame, bg=self.bg_color)
@@ -235,14 +391,24 @@ class TaskTrackerApp:
         task_title_frame = tk.Frame(right_panel, bg=self.paper_color)
         task_title_frame.pack(fill=tk.X, pady=(0, 10))
         
-        task_title = tk.Label(
-            task_title_frame,
-            text="📋 Quests & Tasks",
-            font=("Times New Roman", 14, "bold"),
-            bg=self.paper_color,
-            fg=self.text_color
-        )
-        task_title.pack(side=tk.LEFT)
+        if self.view_mode == "week":
+            task_title = tk.Label(
+                task_title_frame,
+                text="📆 Weekly Quest Overview",
+                font=("Times New Roman", 14, "bold"),
+                bg=self.paper_color,
+                fg=self.text_color
+            )
+            task_title.pack(side=tk.LEFT)
+        else:
+            task_title = tk.Label(
+                task_title_frame,
+                text="📋 Quests & Tasks",
+                font=("Times New Roman", 14, "bold"),
+                bg=self.paper_color,
+                fg=self.text_color
+            )
+            task_title.pack(side=tk.LEFT)
         
         if self.filter_label:
             filter_indicator = tk.Label(
@@ -254,8 +420,15 @@ class TaskTrackerApp:
             )
             filter_indicator.pack(side=tk.RIGHT)
         
+        # Task display area
+        if self.view_mode == "week":
+            self.setup_week_view(right_panel)
+        else:
+            self.setup_day_view(right_panel)
+    
+    def setup_day_view(self, parent):
         # Task list with scrollbar
-        task_list_frame = tk.Frame(right_panel, bg=self.paper_color)
+        task_list_frame = tk.Frame(parent, bg=self.paper_color)
         task_list_frame.pack(fill=tk.BOTH, expand=True)
         
         self.task_listbox = tk.Listbox(
@@ -276,7 +449,7 @@ class TaskTrackerApp:
         self.task_listbox.config(yscrollcommand=task_scrollbar.set)
         
         # Task buttons
-        task_btn_frame = tk.Frame(right_panel, bg=self.paper_color)
+        task_btn_frame = tk.Frame(parent, bg=self.paper_color)
         task_btn_frame.pack(fill=tk.X, pady=(10, 0))
         
         add_task_btn = tk.Button(
@@ -331,23 +504,219 @@ class TaskTrackerApp:
         )
         delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
     
+    def setup_week_view(self, parent):
+        # Calculate week start (Monday)
+        week_start = self.current_date - timedelta(days=self.current_date.weekday())
+        week_days = [week_start + timedelta(days=i) for i in range(7)]
+        
+        # Create scrollable canvas for week view
+        week_canvas_frame = tk.Frame(parent, bg=self.paper_color)
+        week_canvas_frame.pack(fill=tk.BOTH, expand=True)
+        
+        week_canvas = tk.Canvas(week_canvas_frame, bg=self.paper_color, highlightthickness=0)
+        week_scrollbar = tk.Scrollbar(week_canvas_frame, orient=tk.VERTICAL, command=week_canvas.yview)
+        week_content = tk.Frame(week_canvas, bg=self.paper_color)
+        
+        week_content.bind(
+            "<Configure>",
+            lambda e: week_canvas.configure(scrollregion=week_canvas.bbox("all"))
+        )
+        
+        week_canvas.create_window((0, 0), window=week_content, anchor="nw")
+        week_canvas.configure(yscrollcommand=week_scrollbar.set)
+        
+        # Create day columns
+        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        day_emojis = ["🌅", "🌄", "🌆", "🌇", "🌃", "🌙", "☀️"]
+        
+        self.week_task_frames = {}
+        
+        for i, (day_date, day_name_full) in enumerate(zip(week_days, day_names)):
+            day_frame = tk.Frame(week_content, bg=self.paper_color, relief=tk.RAISED, bd=2)
+            day_frame.grid(row=0, column=i, padx=5, pady=5, sticky="nsew")
+            week_content.grid_columnconfigure(i, weight=1)
+            
+            # Day header
+            day_header = tk.Frame(day_frame, bg=self.accent_color)
+            day_header.pack(fill=tk.X)
+            
+            day_label = tk.Label(
+                day_header,
+                text=f"{day_emojis[i]} {day_name_full[:3]}\n{day_date.strftime('%m/%d')}",
+                font=("Times New Roman", 11, "bold"),
+                bg=self.accent_color,
+                fg="white"
+            )
+            day_label.pack(pady=5)
+            
+            # Tasks for this day
+            day_tasks_frame = tk.Frame(day_frame, bg=self.paper_color)
+            day_tasks_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            
+            tasks_for_day = self.get_tasks_for_date(day_date)
+            self.week_task_frames[day_date] = day_tasks_frame
+            
+            if not tasks_for_day:
+                no_tasks = tk.Label(
+                    day_tasks_frame,
+                    text="No quests",
+                    font=("Times New Roman", 9, "italic"),
+                    bg=self.paper_color,
+                    fg="#888888"
+                )
+                no_tasks.pack(pady=10)
+            else:
+                for task in tasks_for_day:
+                    task_frame = tk.Frame(day_tasks_frame, bg="#E8D5B7", relief=tk.RAISED, bd=1)
+                    task_frame.pack(fill=tk.X, pady=2, padx=2)
+                    
+                    label_str = " ".join([self.labels[label].symbol for label in task.labels if label in self.labels])
+                    status = "✅" if task.completed else "⭕"
+                    task_type_icon = "🔄" if task.task_type == "weekly" else "📌"
+                    
+                    task_text = f"{status} {task_type_icon} {label_str} {task.title}"
+                    if len(task_text) > 40:
+                        task_text = task_text[:37] + "..."
+                    
+                    task_label = tk.Label(
+                        task_frame,
+                        text=task_text,
+                        font=("Times New Roman", 9),
+                        bg="#E8D5B7",
+                        fg=self.text_color,
+                        wraplength=120,
+                        justify=tk.LEFT
+                    )
+                    task_label.pack(anchor=tk.W, padx=5, pady=3)
+        
+        week_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        week_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        # Task buttons
+        task_btn_frame = tk.Frame(parent, bg=self.paper_color)
+        task_btn_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        add_task_btn = tk.Button(
+            task_btn_frame,
+            text="➕ New Quest",
+            command=self.add_task,
+            font=("Times New Roman", 10),
+            bg=self.green_color,
+            fg="white",
+            relief=tk.RAISED,
+            bd=2,
+            cursor="hand2"
+        )
+        add_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        
+        edit_task_btn = tk.Button(
+            task_btn_frame,
+            text="✏️ Edit Quest",
+            command=self.edit_task,
+            font=("Times New Roman", 10),
+            bg=self.accent_color,
+            fg="white",
+            relief=tk.RAISED,
+            bd=2,
+            cursor="hand2"
+        )
+        edit_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        
+        complete_task_btn = tk.Button(
+            task_btn_frame,
+            text="✅ Complete",
+            command=self.toggle_complete,
+            font=("Times New Roman", 10),
+            bg=self.gold_color,
+            fg=self.text_color,
+            relief=tk.RAISED,
+            bd=2,
+            cursor="hand2"
+        )
+        complete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+        
+        delete_task_btn = tk.Button(
+            task_btn_frame,
+            text="🗑️ Delete",
+            command=self.delete_task,
+            font=("Times New Roman", 10),
+            bg="#8B0000",
+            fg="white",
+            relief=tk.RAISED,
+            bd=2,
+            cursor="hand2"
+        )
+        delete_task_btn.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=2)
+    
+    def format_date(self, d: date) -> str:
+        """Format date for display"""
+        return d.strftime("%A, %B %d, %Y")
+    
+    def previous_day(self):
+        self.current_date -= timedelta(days=1)
+        if hasattr(self, 'date_label'):
+            self.date_label.config(text=self.format_date(self.current_date))
+        self.update_task_list()
+    
+    def next_day(self):
+        self.current_date += timedelta(days=1)
+        if hasattr(self, 'date_label'):
+            self.date_label.config(text=self.format_date(self.current_date))
+        self.update_task_list()
+    
+    def go_to_today(self):
+        self.current_date = date.today()
+        if hasattr(self, 'date_label'):
+            self.date_label.config(text=self.format_date(self.current_date))
+        self.update_task_list()
+    
+    def toggle_view_mode(self):
+        self.view_mode = self.view_mode_var.get()
+        self.setup_ui()
+        self.update_task_list()
+    
+    def get_tasks_for_date(self, target_date: date) -> List[Task]:
+        """Get all tasks that are due on the given date"""
+        tasks = []
+        for task in self.tasks:
+            if self.filter_label and self.filter_label not in task.labels:
+                continue
+            if task.is_due_on_date(target_date):
+                tasks.append(task)
+        return tasks
+    
     def add_task(self):
         dialog = TaskDialog(self.root, "Add New Quest", labels=list(self.labels.keys()))
         self.root.wait_window(dialog.dialog)
         if dialog.result:
-            title, description, selected_labels = dialog.result
-            task = Task(title, description, selected_labels)
+            task_data = dialog.result
+            task = Task(
+                title=task_data['title'],
+                description=task_data['description'],
+                labels=task_data['labels'],
+                task_type=task_data['task_type'],
+                due_date=task_data.get('due_date'),
+                days_of_week=task_data.get('days_of_week'),
+                start_date=task_data.get('start_date'),
+                repeat_frequency=task_data.get('repeat_frequency', 1)
+            )
             self.tasks.append(task)
             self.update_task_list()
             self.save_data()
     
     def edit_task(self):
-        selection = self.task_listbox.curselection()
-        if not selection:
-            messagebox.showinfo("No Selection", "Please select a quest to edit.")
+        if self.view_mode == "day":
+            selection = self.task_listbox.curselection()
+            if not selection:
+                messagebox.showinfo("No Selection", "Please select a quest to edit.")
+                return
+            
+            task = self.get_selected_task()
+        else:
+            # In week view, need to select from a day
+            messagebox.showinfo("Edit Quest", "Please switch to Day view to edit quests, or select a quest from the day view.")
             return
         
-        task = self.get_selected_task()
         if not task:
             return
         
@@ -355,27 +724,44 @@ class TaskTrackerApp:
             self.root,
             "Edit Quest",
             labels=list(self.labels.keys()),
-            initial_title=task.title,
-            initial_description=task.description,
-            initial_labels=task.labels
+            initial_data={
+                'title': task.title,
+                'description': task.description,
+                'labels': task.labels,
+                'task_type': task.task_type,
+                'due_date': task.due_date,
+                'days_of_week': task.days_of_week,
+                'start_date': task.start_date,
+                'repeat_frequency': task.repeat_frequency
+            }
         )
         self.root.wait_window(dialog.dialog)
         
         if dialog.result:
-            title, description, selected_labels = dialog.result
-            task.title = title
-            task.description = description
-            task.labels = selected_labels
+            task_data = dialog.result
+            task.title = task_data['title']
+            task.description = task_data['description']
+            task.labels = task_data['labels']
+            task.task_type = task_data['task_type']
+            task.due_date = task_data.get('due_date')
+            task.days_of_week = task_data.get('days_of_week')
+            task.start_date = task_data.get('start_date')
+            task.repeat_frequency = task_data.get('repeat_frequency', 1)
             self.update_task_list()
             self.save_data()
     
     def delete_task(self):
-        selection = self.task_listbox.curselection()
-        if not selection:
-            messagebox.showinfo("No Selection", "Please select a quest to delete.")
+        if self.view_mode == "day":
+            selection = self.task_listbox.curselection()
+            if not selection:
+                messagebox.showinfo("No Selection", "Please select a quest to delete.")
+                return
+            
+            task = self.get_selected_task()
+        else:
+            messagebox.showinfo("Delete Quest", "Please switch to Day view to delete quests.")
             return
         
-        task = self.get_selected_task()
         if not task:
             return
         
@@ -385,12 +771,17 @@ class TaskTrackerApp:
             self.save_data()
     
     def toggle_complete(self):
-        selection = self.task_listbox.curselection()
-        if not selection:
-            messagebox.showinfo("No Selection", "Please select a quest to mark.")
+        if self.view_mode == "day":
+            selection = self.task_listbox.curselection()
+            if not selection:
+                messagebox.showinfo("No Selection", "Please select a quest to mark.")
+                return
+            
+            task = self.get_selected_task()
+        else:
+            messagebox.showinfo("Complete Quest", "Please switch to Day view to mark quests complete.")
             return
         
-        task = self.get_selected_task()
         if not task:
             return
         
@@ -399,6 +790,9 @@ class TaskTrackerApp:
         self.save_data()
     
     def get_selected_task(self) -> Optional[Task]:
+        if self.view_mode != "day" or not hasattr(self, 'task_listbox'):
+            return None
+        
         selection = self.task_listbox.curselection()
         if not selection:
             return None
@@ -410,13 +804,20 @@ class TaskTrackerApp:
         return None
     
     def get_filtered_tasks(self) -> List[Task]:
-        if self.filter_label:
-            return [t for t in self.tasks if self.filter_label in t.labels]
-        return self.tasks
+        if self.view_mode == "day":
+            return self.get_tasks_for_date(self.current_date)
+        else:
+            return [t for t in self.tasks if self.filter_label is None or self.filter_label in t.labels]
     
     def update_task_list(self):
+        if self.view_mode == "week":
+            # Rebuild week view to refresh tasks - simpler approach
+            self.setup_ui()
+            return
+        
         if not hasattr(self, 'task_listbox'):
             return
+        
         self.task_listbox.delete(0, tk.END)
         filtered_tasks = self.get_filtered_tasks()
         
@@ -426,7 +827,20 @@ class TaskTrackerApp:
             if label_str:
                 label_str = label_str + " "
             status = "✅" if task.completed else "⭕"
-            display = f"{status} {label_str}{task.title}"
+            task_type_icon = "🔄" if task.task_type == "weekly" else "📌"
+            display = f"{status} {task_type_icon} {label_str}{task.title}"
+            
+            # Add date info
+            if task.task_type == "oneshot" and task.due_date:
+                try:
+                    due = datetime.fromisoformat(task.due_date).date()
+                    display += f" (Due: {due.strftime('%m/%d')})"
+                except:
+                    pass
+            elif task.task_type == "weekly":
+                days = [day_name[d] for d in task.days_of_week]
+                display += f" (Weekly: {', '.join([d[:3] for d in days])})"
+            
             if task.description:
                 display += f" - {task.description[:30]}..."
             
@@ -597,21 +1011,22 @@ class TaskTrackerApp:
 
 
 class TaskDialog:
-    def __init__(self, parent, title, labels=None, initial_title="", initial_description="", initial_labels=None):
+    def __init__(self, parent, title, labels=None, initial_data=None):
         self.result = None
+        initial_data = initial_data or {}
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("500x450")
+        self.dialog.geometry("600x650")
         self.dialog.configure(bg="#2C1810")
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
         # Center the dialog
         self.dialog.update_idletasks()
-        x = (self.dialog.winfo_screenwidth() // 2) - (500 // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (450 // 2)
-        self.dialog.geometry(f"500x450+{x}+{y}")
+        x = (self.dialog.winfo_screenwidth() // 2) - (600 // 2)
+        y = (self.dialog.winfo_screenheight() // 2) - (650 // 2)
+        self.dialog.geometry(f"600x650+{x}+{y}")
         
         main_frame = tk.Frame(self.dialog, bg="#F4E4BC", padx=20, pady=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -627,7 +1042,7 @@ class TaskDialog:
         
         self.title_entry = tk.Entry(main_frame, font=("Times New Roman", 11), width=50)
         self.title_entry.pack(fill=tk.X, pady=(0, 15))
-        self.title_entry.insert(0, initial_title)
+        self.title_entry.insert(0, initial_data.get('title', ''))
         
         # Description
         tk.Label(
@@ -638,9 +1053,164 @@ class TaskDialog:
             fg="#3D2817"
         ).pack(anchor=tk.W, pady=(0, 5))
         
-        self.desc_text = tk.Text(main_frame, font=("Times New Roman", 11), width=50, height=8)
-        self.desc_text.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
-        self.desc_text.insert("1.0", initial_description)
+        desc_frame = tk.Frame(main_frame, bg="#F4E4BC")
+        desc_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 15))
+        
+        self.desc_text = tk.Text(desc_frame, font=("Times New Roman", 11), width=50, height=6)
+        self.desc_text.pack(fill=tk.BOTH, expand=True)
+        self.desc_text.insert("1.0", initial_data.get('description', ''))
+        
+        # Task Type
+        tk.Label(
+            main_frame,
+            text="Task Type:",
+            font=("Times New Roman", 11, "bold"),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(anchor=tk.W, pady=(0, 5))
+        
+        type_frame = tk.Frame(main_frame, bg="#F4E4BC")
+        type_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        self.task_type_var = tk.StringVar(value=initial_data.get('task_type', 'oneshot'))
+        
+        oneshot_radio = tk.Radiobutton(
+            type_frame,
+            text="📌 One-Shot Task",
+            variable=self.task_type_var,
+            value="oneshot",
+            command=self.update_task_type_fields,
+            font=("Times New Roman", 10),
+            bg="#F4E4BC",
+            fg="#3D2817",
+            selectcolor="#F4E4BC",
+            activebackground="#F4E4BC"
+        )
+        oneshot_radio.pack(side=tk.LEFT, padx=10)
+        
+        weekly_radio = tk.Radiobutton(
+            type_frame,
+            text="🔄 Weekly Task",
+            variable=self.task_type_var,
+            value="weekly",
+            command=self.update_task_type_fields,
+            font=("Times New Roman", 10),
+            bg="#F4E4BC",
+            fg="#3D2817",
+            selectcolor="#F4E4BC",
+            activebackground="#F4E4BC"
+        )
+        weekly_radio.pack(side=tk.LEFT, padx=10)
+        
+        # Date fields container
+        self.date_fields_frame = tk.Frame(main_frame, bg="#F4E4BC")
+        self.date_fields_frame.pack(fill=tk.X, pady=(0, 15))
+        
+        # One-shot date field
+        self.oneshot_date_frame = tk.Frame(self.date_fields_frame, bg="#F4E4BC")
+        
+        tk.Label(
+            self.oneshot_date_frame,
+            text="Due Date (YYYY-MM-DD):",
+            font=("Times New Roman", 10, "bold"),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(anchor=tk.W, pady=(0, 5))
+        
+        self.due_date_entry = tk.Entry(self.oneshot_date_frame, font=("Times New Roman", 10), width=20)
+        self.due_date_entry.pack(anchor=tk.W)
+        if initial_data.get('due_date'):
+            try:
+                due = datetime.fromisoformat(initial_data['due_date']).date()
+                self.due_date_entry.insert(0, due.isoformat())
+            except:
+                pass
+        
+        # Weekly task fields
+        self.weekly_fields_frame = tk.Frame(self.date_fields_frame, bg="#F4E4BC")
+        
+        # Start date
+        tk.Label(
+            self.weekly_fields_frame,
+            text="Start Date (YYYY-MM-DD):",
+            font=("Times New Roman", 10, "bold"),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(anchor=tk.W, pady=(0, 5))
+        
+        self.start_date_entry = tk.Entry(self.weekly_fields_frame, font=("Times New Roman", 10), width=20)
+        self.start_date_entry.pack(anchor=tk.W, pady=(0, 10))
+        if initial_data.get('start_date'):
+            try:
+                start = datetime.fromisoformat(initial_data['start_date']).date()
+                self.start_date_entry.insert(0, start.isoformat())
+            except:
+                pass
+        
+        # Days of week
+        tk.Label(
+            self.weekly_fields_frame,
+            text="Days of Week:",
+            font=("Times New Roman", 10, "bold"),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(anchor=tk.W, pady=(0, 5))
+        
+        days_frame = tk.Frame(self.weekly_fields_frame, bg="#F4E4BC")
+        days_frame.pack(anchor=tk.W, pady=(0, 10))
+        
+        self.days_vars = {}
+        day_names_short = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i, day_name in enumerate(day_names_short):
+            var = tk.BooleanVar()
+            var.set(i in (initial_data.get('days_of_week', [])))
+            self.days_vars[i] = var
+            
+            check = tk.Checkbutton(
+                days_frame,
+                text=day_name,
+                variable=var,
+                font=("Times New Roman", 9),
+                bg="#F4E4BC",
+                fg="#3D2817",
+                selectcolor="#F4E4BC",
+                activebackground="#F4E4BC"
+            )
+            check.pack(side=tk.LEFT, padx=5)
+        
+        # Repeat frequency
+        tk.Label(
+            self.weekly_fields_frame,
+            text="Repeat Every N Weeks:",
+            font=("Times New Roman", 10, "bold"),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(anchor=tk.W, pady=(0, 5))
+        
+        freq_frame = tk.Frame(self.weekly_fields_frame, bg="#F4E4BC")
+        freq_frame.pack(anchor=tk.W)
+        
+        self.repeat_freq_var = tk.StringVar(value=str(initial_data.get('repeat_frequency', 1)))
+        freq_spinbox = tk.Spinbox(
+            freq_frame,
+            from_=1,
+            to=52,
+            textvariable=self.repeat_freq_var,
+            font=("Times New Roman", 10),
+            width=5
+        )
+        freq_spinbox.pack(side=tk.LEFT, padx=5)
+        
+        tk.Label(
+            freq_frame,
+            text="weeks",
+            font=("Times New Roman", 10),
+            bg="#F4E4BC",
+            fg="#3D2817"
+        ).pack(side=tk.LEFT)
+        
+        # Update fields based on initial type
+        self.update_task_type_fields()
         
         # Labels
         tk.Label(
@@ -666,8 +1236,8 @@ class TaskDialog:
         
         self.label_vars = {}
         if labels:
-            # Create a scrollable frame for labels if there are many
-            label_canvas = tk.Canvas(label_frame, bg="#F4E4BC", highlightthickness=0, height=100)
+            # Create a scrollable frame for labels
+            label_canvas = tk.Canvas(label_frame, bg="#F4E4BC", highlightthickness=0, height=80)
             label_scrollbar = tk.Scrollbar(label_frame, orient=tk.VERTICAL, command=label_canvas.yview)
             label_scrollable_frame = tk.Frame(label_canvas, bg="#F4E4BC")
             
@@ -687,7 +1257,7 @@ class TaskDialog:
             
             for label_name in labels:
                 var = tk.BooleanVar()
-                var.set(label_name in (initial_labels or []))
+                var.set(label_name in (initial_data.get('labels', [])))
                 self.label_vars[label_name] = var
                 
                 check = tk.Checkbutton(
@@ -711,7 +1281,7 @@ class TaskDialog:
         
         tk.Button(
             btn_frame,
-            text="Save",
+            text="💾 Save",
             command=self.save,
             font=("Times New Roman", 10),
             bg="#4A7C59",
@@ -723,7 +1293,7 @@ class TaskDialog:
         
         tk.Button(
             btn_frame,
-            text="Cancel",
+            text="❌ Cancel",
             command=self.dialog.destroy,
             font=("Times New Roman", 10),
             bg="#8B0000",
@@ -737,6 +1307,17 @@ class TaskDialog:
         self.title_entry.focus_set()
         self.title_entry.select_range(0, tk.END)
     
+    def update_task_type_fields(self):
+        task_type = self.task_type_var.get()
+        # Clear all
+        for widget in self.date_fields_frame.winfo_children():
+            widget.pack_forget()
+        
+        if task_type == "oneshot":
+            self.oneshot_date_frame.pack(fill=tk.X, anchor=tk.W)
+        else:
+            self.weekly_fields_frame.pack(fill=tk.X, anchor=tk.W)
+    
     def save(self):
         title = self.title_entry.get().strip()
         if not title:
@@ -745,8 +1326,47 @@ class TaskDialog:
         
         description = self.desc_text.get("1.0", tk.END).strip()
         selected_labels = [name for name, var in self.label_vars.items() if var.get()]
+        task_type = self.task_type_var.get()
         
-        self.result = (title, description, selected_labels)
+        result = {
+            'title': title,
+            'description': description,
+            'labels': selected_labels,
+            'task_type': task_type
+        }
+        
+        if task_type == "oneshot":
+            due_date_str = self.due_date_entry.get().strip()
+            if due_date_str:
+                try:
+                    # Validate date format
+                    datetime.strptime(due_date_str, "%Y-%m-%d")
+                    result['due_date'] = due_date_str
+                except ValueError:
+                    messagebox.showerror("Invalid Date", "Due date must be in YYYY-MM-DD format.")
+                    return
+        else:  # weekly
+            start_date_str = self.start_date_entry.get().strip()
+            if not start_date_str:
+                messagebox.showerror("Invalid", "Start date is required for weekly tasks.")
+                return
+            
+            try:
+                datetime.strptime(start_date_str, "%Y-%m-%d")
+                result['start_date'] = start_date_str
+            except ValueError:
+                messagebox.showerror("Invalid Date", "Start date must be in YYYY-MM-DD format.")
+                return
+            
+            selected_days = [day for day, var in self.days_vars.items() if var.get()]
+            if not selected_days:
+                messagebox.showerror("Invalid", "Please select at least one day of the week.")
+                return
+            
+            result['days_of_week'] = selected_days
+            result['repeat_frequency'] = int(self.repeat_freq_var.get())
+        
+        self.result = result
         self.dialog.destroy()
 
 
@@ -756,7 +1376,7 @@ class LabelDialog:
         
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
-        self.dialog.geometry("400x300")
+        self.dialog.geometry("400x400")
         self.dialog.configure(bg="#2C1810")
         self.dialog.transient(parent)
         self.dialog.grab_set()
@@ -764,8 +1384,8 @@ class LabelDialog:
         # Center the dialog
         self.dialog.update_idletasks()
         x = (self.dialog.winfo_screenwidth() // 2) - (400 // 2)
-        y = (self.dialog.winfo_screenheight() // 2) - (300 // 2)
-        self.dialog.geometry(f"400x300+{x}+{y}")
+        y = (self.dialog.winfo_screenheight() // 2) - (400 // 2)
+        self.dialog.geometry(f"400x400+{x}+{y}")
         
         main_frame = tk.Frame(self.dialog, bg="#F4E4BC", padx=20, pady=20)
         main_frame.pack(fill=tk.BOTH, expand=True)
@@ -799,8 +1419,12 @@ class LabelDialog:
         self.symbol_entry.pack(side=tk.LEFT, padx=(0, 10))
         self.symbol_entry.insert(0, initial_symbol)
         
-        # Emoji suggestions
-        emoji_suggestions = ["📋", "⚔️", "🛡️", "✨", "🔮", "📜", "🗡️", "🏰", "🌿", "⭐", "💎", "🔥", "❄️", "🌙", "☀️"]
+        # Emoji suggestions - expanded list
+        emoji_suggestions = [
+            "📋", "⚔️", "🛡️", "✨", "🔮", "📜", "🗡️", "🏰", "🌿", "⭐", "💎", "🔥", "❄️", "🌙", "☀️",
+            "🗺️", "🧙", "🧝", "🐉", "🦄", "🌳", "🍄", "🌺", "🦋", "🦅", "🐺", "🦌", "🌊", "⛰️", "🌌",
+            "🎯", "🏹", "⚡", "🌟", "💫", "🌠", "🎨", "🎭", "🎪", "🎬", "📸", "🎮", "🎲", "🃏", "🎴"
+        ]
         suggestion_frame = tk.Frame(main_frame, bg="#F4E4BC")
         suggestion_frame.pack(fill=tk.X, pady=(0, 15))
         
@@ -812,9 +1436,22 @@ class LabelDialog:
             fg="#3D2817"
         ).pack(side=tk.LEFT, padx=(0, 5))
         
+        # Create scrollable emoji buttons
+        emoji_canvas = tk.Canvas(suggestion_frame, bg="#F4E4BC", height=40, highlightthickness=0)
+        emoji_scroll = tk.Scrollbar(suggestion_frame, orient=tk.HORIZONTAL, command=emoji_canvas.xview)
+        emoji_inner = tk.Frame(emoji_canvas, bg="#F4E4BC")
+        
+        emoji_inner.bind(
+            "<Configure>",
+            lambda e: emoji_canvas.configure(scrollregion=emoji_canvas.bbox("all"))
+        )
+        
+        emoji_canvas.create_window((0, 0), window=emoji_inner, anchor="nw")
+        emoji_canvas.configure(xscrollcommand=emoji_scroll.set)
+        
         for emoji in emoji_suggestions:
             btn = tk.Button(
-                suggestion_frame,
+                emoji_inner,
                 text=emoji,
                 command=lambda e=emoji: self.symbol_entry.delete(0, tk.END) or self.symbol_entry.insert(0, e),
                 font=("Times New Roman", 12),
@@ -823,6 +1460,9 @@ class LabelDialog:
                 cursor="hand2"
             )
             btn.pack(side=tk.LEFT, padx=2)
+        
+        emoji_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        emoji_scroll.pack(side=tk.RIGHT, fill=tk.Y)
         
         # Color
         tk.Label(
@@ -861,7 +1501,7 @@ class LabelDialog:
         
         tk.Button(
             btn_frame,
-            text="Save",
+            text="💾 Save",
             command=self.save,
             font=("Times New Roman", 10),
             bg="#4A7C59",
@@ -873,7 +1513,7 @@ class LabelDialog:
         
         tk.Button(
             btn_frame,
-            text="Cancel",
+            text="❌ Cancel",
             command=self.dialog.destroy,
             font=("Times New Roman", 10),
             bg="#8B0000",

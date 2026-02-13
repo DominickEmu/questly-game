@@ -7,8 +7,32 @@
         "laundry"
       ],
       "completed": false,
+      "task_type": "oneshot",
+      "due_date": null,
+      "days_of_week": [],
+      "start_date": null,
+      "repeat_frequency": 1,
       "created_at": "2026-02-12T20:41:05.411192",
       "id": 1770946865.411234
+    },
+    {
+      "title": "clean dirty sock",
+      "description": "ewwwstinky!!!!",
+      "labels": [
+        "laundry"
+      ],
+      "completed": false,
+      "task_type": "weekly",
+      "due_date": null,
+      "days_of_week": [
+        0,
+        2,
+        4
+      ],
+      "start_date": "2026-02-12",
+      "repeat_frequency": 1,
+      "created_at": "2026-02-12T20:58:23.705702",
+      "id": 1770947903.705711
     }
   ],
   "labels": {
