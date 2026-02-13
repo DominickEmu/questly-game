@@ -1,0 +1,8 @@
+# This application uses only Python's built-in libraries
+# No external dependencies required!
+#
+# Required built-in modules:
+# - tkinter (GUI framework)
+# - json (data persistence)
+# - os (file operations)
+# - datetime (timestamps)
