@@ -1,0 +1,159 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.monthLabel {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 10rem;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  margin-bottom: 1px;
+  animation: fadeSlideUp 0.3s ease-out 0.05s both;
+}
+
+.weekDay {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.5rem 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  animation: fadeSlideUp 0.35s ease-out 0.1s both;
+}
+
+.cell {
+  background: var(--bg-card);
+  padding: 0.5rem;
+  min-height: 5rem;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cell:hover {
+  background: rgba(200, 168, 78, 0.06);
+}
+
+.cell.today {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 2px rgba(200, 168, 78, 0.3);
+}
+
+.cell.selected {
+  background: rgba(200, 168, 78, 0.1);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.cell.outside {
+  opacity: 0.35;
+}
+
+.cell.outside:hover {
+  opacity: 0.55;
+}
+
+.dayNum {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.cell.today .dayNum {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.cell.selected .dayNum {
+  color: var(--text-primary);
+}
+
+.indicators {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: auto;
+}
+
+.dotPending {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: rgba(200, 168, 78, 0.2);
+  color: var(--accent);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.dotDone {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: rgba(45, 138, 45, 0.15);
+  color: var(--xp-green);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.detail {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(200, 168, 78, 0.015);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  animation: fadeSlideUp 0.3s ease-out 0.15s both;
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.detailHeader h2 {
+  font-size: 1rem;
+  margin-bottom: 0;
+}
+
+.empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: 0.88rem;
+  font-style: italic;
+  border: 1px dashed rgba(200, 168, 78, 0.1);
+  border-radius: var(--radius-md);
+  background: rgba(200, 168, 78, 0.02);
+}

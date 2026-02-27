@@ -1,0 +1,50 @@
+.balance {
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.toast {
+  background: var(--accent-soft);
+  border: 1px solid rgba(200, 168, 78, 0.25);
+  color: var(--accent);
+  padding: 0.6rem 1.15rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.88rem;
+  animation: fadeSlideUp 0.25s ease-out;
+}
+
+.section {
+  margin-top: 2.25rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.purchaseList {
+  list-style: none;
+  padding: 0;
+}
+
+.purchaseList li {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(200, 168, 78, 0.06);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
