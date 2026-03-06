@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from routers import tasks, profile, shop
+from routers import tasks, profile, shop, gcal
 
 Base.metadata.create_all(bind=engine)
 
@@ -18,6 +18,12 @@ app.add_middleware(
 app.include_router(tasks.router, prefix="/api")
 app.include_router(profile.router, prefix="/api")
 app.include_router(shop.router, prefix="/api")
+app.include_router(gcal.router, prefix="/api")
+
+
+@app.get("/")
+def root():
+    return {"message": "Questly API", "docs": "/docs"}
 
 
 @app.on_event("startup")

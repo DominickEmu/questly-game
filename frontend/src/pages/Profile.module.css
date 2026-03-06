@@ -85,3 +85,187 @@
   font-size: 0.88rem;
   animation: fadeIn 0.3s ease-out;
 }
+
+/* ── Google Calendar Section ─────────────────────────── */
+
+.gcalSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  max-width: 480px;
+  animation: fadeSlideUp 0.4s ease-out 0.25s both;
+}
+
+.gcalSection h2 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0 0 0.85rem;
+}
+
+.gcalMuted {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.gcalConnected {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.gcalBadge {
+  display: inline-block;
+  background: rgba(45, 138, 45, 0.15);
+  color: #3eb43e;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gcalActions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.gcalDisconnect {
+  background: none;
+  border: 1px solid rgba(200, 80, 80, 0.4);
+  color: #c85050;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.gcalDisconnect:hover {
+  background: rgba(200, 80, 80, 0.1);
+  border-color: #c85050;
+}
+
+.gcalResult {
+  margin-top: 0.75rem;
+  color: var(--xp-green);
+  font-weight: 600;
+  font-size: 0.88rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.gcalError {
+  margin-top: 0.75rem;
+  color: #c85050;
+  font-weight: 500;
+  font-size: 0.85rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ── Keyword Management ──────────────────────────────── */
+
+.kwSection {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 1.1rem;
+}
+
+.kwSection h3 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin: 0 0 0.3rem;
+}
+
+.kwHint {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin: 0 0 1rem;
+}
+
+.kwGroup {
+  margin-bottom: 1rem;
+}
+
+.kwLabel {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+}
+
+.kwTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.kwTagDefault,
+.kwTagCustom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.kwTagDefault {
+  background: rgba(200, 168, 78, 0.1);
+  color: var(--text-muted);
+}
+
+.kwTagCustom {
+  background: rgba(200, 168, 78, 0.2);
+  color: var(--text-primary);
+}
+
+.kwTagDefault button,
+.kwTagCustom button {
+  background: none;
+  border: none;
+  color: #c85050;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.kwTagDefault button:hover,
+.kwTagCustom button:hover {
+  opacity: 1;
+}
+
+.kwAdd {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.kwAdd input {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.kwAdd button {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.kwFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}

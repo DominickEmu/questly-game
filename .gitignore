@@ -1,1 +1,14 @@
 nul
+
+# Environment secrets
+.env
+backend/.env
+credentials.json
+backend/credentials.json
+
+# SQLite dev database
+*.db
+
+# Python
+__pycache__/
+*.pyc

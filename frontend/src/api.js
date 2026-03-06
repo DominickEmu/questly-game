@@ -35,4 +35,12 @@ export const api = {
   getShopItems: () => request('/shop'),
   buyItem: (id, currency = 'coins') => request(`/shop/buy/${id}?currency=${currency}`, { method: 'POST' }),
   getPurchases: () => request('/shop/purchases'),
+
+  // Google Calendar
+  gcalStatus: () => request('/gcal/status'),
+  gcalAuthUrl: () => request('/gcal/auth-url'),
+  gcalSync: () => request('/gcal/sync', { method: 'POST' }),
+  gcalDisconnect: () => request('/gcal/disconnect', { method: 'DELETE' }),
+  gcalGetKeywords: () => request('/gcal/keywords'),
+  gcalUpdateKeywords: (data) => request('/gcal/keywords', { method: 'PUT', body: JSON.stringify(data) }),
 };

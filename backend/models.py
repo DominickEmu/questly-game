@@ -16,6 +16,11 @@ class Profile(Base):
     gems: Mapped[int] = mapped_column(Integer, default=0)
     genre_preference: Mapped[str] = mapped_column(Text, default="fantasy")
     avatar_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    google_token: Mapped[str | None] = mapped_column(Text, nullable=True)
+    google_calendar_id: Mapped[str | None] = mapped_column(
+        Text, nullable=True, default="primary"
+    )
+    difficulty_keywords: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Task(Base):
@@ -29,6 +34,8 @@ class Task(Base):
     category: Mapped[str | None] = mapped_column(Text, nullable=True)
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     recurrence: Mapped[str] = mapped_column(Text, default="none")
+    source: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
