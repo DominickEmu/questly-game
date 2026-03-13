@@ -53,6 +53,24 @@
   gap: 0.3rem;
 }
 
+.checkLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.checkLabel input {
+  width: auto;
+  accent-color: var(--accent);
+}
+
 .buttons {
   display: flex;
   justify-content: flex-end;

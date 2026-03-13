@@ -8,6 +8,7 @@ const EMPTY = {
   category: '',
   due_date: '',
   recurrence: 'none',
+  story_ender: false,
 };
 
 export default function TaskForm({ task, onSave, onCancel }) {
@@ -22,6 +23,7 @@ export default function TaskForm({ task, onSave, onCancel }) {
         category: task.category || '',
         due_date: task.due_date || '',
         recurrence: task.recurrence || 'none',
+        story_ender: task.story_ender ?? false,
       });
     } else {
       setForm(EMPTY);
@@ -29,7 +31,8 @@ export default function TaskForm({ task, onSave, onCancel }) {
   }, [task]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setForm({ ...form, [name]: type === 'checkbox' ? checked : value });
   };
 
   const handleSubmit = (e) => {
@@ -83,6 +86,16 @@ export default function TaskForm({ task, onSave, onCancel }) {
             <input type="date" name="due_date" value={form.due_date} onChange={handleChange} />
           </div>
         </div>
+
+        <label className={styles.checkLabel}>
+          <input
+            type="checkbox"
+            name="story_ender"
+            checked={form.story_ender}
+            onChange={handleChange}
+          />
+          <span>End the story when I complete this quest</span>
+        </label>
 
         <div className={styles.buttons}>
           <button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button>

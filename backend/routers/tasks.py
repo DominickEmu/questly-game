@@ -44,6 +44,7 @@ def _clone_recurring_task(db: Session, original: Task) -> Task | None:
         category=original.category,
         due_date=next_due,
         recurrence=original.recurrence,
+        story_ender=original.story_ender,
     )
     db.add(clone)
     return clone

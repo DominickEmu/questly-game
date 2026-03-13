@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from sqlalchemy import Integer, Text, Date, DateTime, ForeignKey
+from sqlalchemy import Boolean, Integer, Text, Date, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -36,6 +36,7 @@ class Task(Base):
     recurrence: Mapped[str] = mapped_column(Text, default="none")
     source: Mapped[str | None] = mapped_column(Text, nullable=True)
     source_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    story_ender: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 

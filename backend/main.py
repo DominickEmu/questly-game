@@ -1,10 +1,24 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from database import Base, engine
 from routers import tasks, profile, shop, gcal, story
 
 Base.metadata.create_all(bind=engine)
+
+
+def _migrate_add_story_ender():
+    """Add story_ender column to tasks if it doesn't exist (for existing DBs)."""
+    with engine.connect() as conn:
+        result = conn.execute(text("PRAGMA table_info(tasks)"))
+        columns = [row[1] for row in result]
+        if "story_ender" not in columns:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN story_ender BOOLEAN DEFAULT 0"))
+            conn.commit()
+
+
+_migrate_add_story_ender()
 
 app = FastAPI(title="Questly API")
 

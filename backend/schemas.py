@@ -31,6 +31,7 @@ class TaskCreate(BaseModel):
     category: str | None = None
     due_date: date | None = None
     recurrence: str = "none"
+    story_ender: bool = False
 
 
 class TaskUpdate(BaseModel):
@@ -41,6 +42,7 @@ class TaskUpdate(BaseModel):
     category: str | None = None
     due_date: date | None = None
     recurrence: str | None = None
+    story_ender: bool | None = None
 
 
 class TaskOut(BaseModel):
@@ -52,6 +54,7 @@ class TaskOut(BaseModel):
     category: str | None
     due_date: date | None
     recurrence: str
+    story_ender: bool
     created_at: datetime
     completed_at: datetime | None
 

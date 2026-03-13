@@ -67,6 +67,20 @@
   border: 1px solid rgba(200, 168, 78, 0.2);
 }
 
+.storyEnder {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(110, 80, 140, 0.25);
+  color: #c9a8e0;
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+  text-align: center;
+  border: 1px solid rgba(140, 90, 180, 0.35);
+}
+
 .title {
   font-weight: 600;
   font-size: 0.95rem;

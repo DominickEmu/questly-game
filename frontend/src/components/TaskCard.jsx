@@ -25,6 +25,9 @@ export default function TaskCard({ task, onComplete, onEdit, onDelete }) {
               {task.recurrence === 'daily' ? 'Daily' : 'Weekly'}
             </span>
           )}
+          {task.story_ender && (
+            <span className={styles.storyEnder}>Story ender</span>
+          )}
         </div>
         <div>
           <div className={styles.title}>{task.title}</div>
