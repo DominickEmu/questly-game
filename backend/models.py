@@ -40,6 +40,18 @@ class Task(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
+class StorySegment(Base):
+    __tablename__ = "story_segments"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id"))
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    genre: Mapped[str] = mapped_column(Text, default="fantasy")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    task: Mapped["Task"] = relationship()
+
+
 class ShopItem(Base):
     __tablename__ = "shop_items"
 

@@ -6,6 +6,7 @@ import Weekly from './pages/Weekly';
 import Calendar from './pages/Calendar';
 import Shop from './pages/Shop';
 import Profile from './pages/Profile';
+import Story from './pages/Story';
 import { api } from './api';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/calendar" element={<Calendar profile={profile} onReward={refreshProfile} />} />
           <Route path="/shop" element={<Shop profile={profile} onPurchase={refreshProfile} />} />
           <Route path="/profile" element={<Profile profile={profile} onUpdate={refreshProfile} />} />
+          <Route path="/story" element={<Story />} />
         </Routes>
       </main>
     </div>

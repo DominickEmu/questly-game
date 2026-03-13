@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import Task, Profile
 from schemas import TaskCreate, TaskUpdate, TaskOut, RewardOut
+from story_generator import generate_story_segment
 
 router = APIRouter(tags=["tasks"])
 
@@ -129,10 +130,14 @@ def complete_task(task_id: int, db: Session = Depends(get_db)):
         profile.level += 1
         leveled_up = True
 
+    # Commit core task + reward changes before attempting story generation
     db.commit()
     db.refresh(profile)
     if clone:
         db.refresh(clone)
+
+    # Try to generate a story segment, but never block rewards if it fails
+    story = generate_story_segment(db, task, profile)
 
     return RewardOut(
         xp=rewards["xp"],
@@ -141,4 +146,5 @@ def complete_task(task_id: int, db: Session = Depends(get_db)):
         leveled_up=leveled_up,
         new_level=profile.level,
         next_task_id=clone.id if clone else None,
+        story=story,
     )

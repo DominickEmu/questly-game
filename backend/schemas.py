@@ -65,6 +65,19 @@ class RewardOut(BaseModel):
     leveled_up: bool
     new_level: int
     next_task_id: int | None = None
+    story: str | None = None
+
+
+# ── Story ───────────────────────────────────────────────
+
+class StorySegmentOut(BaseModel):
+    id: int
+    task_id: int
+    content: str
+    genre: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
 
 
 # ── Shop ─────────────────────────────────────────────────

@@ -27,6 +27,12 @@ export default function RewardPopup({ reward, onClose }) {
         {reward.next_task_id && (
           <div className={styles.nextQuest}>Next quest has been queued</div>
         )}
+        {reward.story && (
+          <div className={styles.storyBox}>
+            <div className={styles.storyLabel}>Your tale continues...</div>
+            <div className={styles.storyText}>{reward.story}</div>
+          </div>
+        )}
         <button className="btn-primary" onClick={onClose}>Awesome!</button>
       </div>
     </div>

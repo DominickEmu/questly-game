@@ -19,3 +19,5 @@ GOOGLE_REDIRECT_URI = os.environ.get(
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
 GOOGLE_SCOPES = ["https://www.googleapis.com/auth/calendar.events.readonly"]
+
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")

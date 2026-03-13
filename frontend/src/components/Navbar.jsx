@@ -10,6 +10,7 @@ export default function Navbar({ profile }) {
         <NavLink to="/weekly" className={({ isActive }) => isActive ? styles.active : ''}>Weekly</NavLink>
         <NavLink to="/calendar" className={({ isActive }) => isActive ? styles.active : ''}>Calendar</NavLink>
         <NavLink to="/shop" className={({ isActive }) => isActive ? styles.active : ''}>Shop</NavLink>
+        <NavLink to="/story" className={({ isActive }) => isActive ? styles.active : ''}>Story</NavLink>
         <NavLink to="/profile" className={({ isActive }) => isActive ? styles.active : ''}>Profile</NavLink>
       </div>
       <div className={styles.currencies}>

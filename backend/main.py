@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import Base, engine
-from routers import tasks, profile, shop, gcal
+from routers import tasks, profile, shop, gcal, story
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,6 +19,7 @@ app.include_router(tasks.router, prefix="/api")
 app.include_router(profile.router, prefix="/api")
 app.include_router(shop.router, prefix="/api")
 app.include_router(gcal.router, prefix="/api")
+app.include_router(story.router, prefix="/api")
 
 
 @app.get("/")

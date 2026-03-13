@@ -43,4 +43,8 @@ export const api = {
   gcalDisconnect: () => request('/gcal/disconnect', { method: 'DELETE' }),
   gcalGetKeywords: () => request('/gcal/keywords'),
   gcalUpdateKeywords: (data) => request('/gcal/keywords', { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Story
+  getStory: () => request('/story'),
+  resetStory: () => request('/story/reset', { method: 'POST' }),
 };
