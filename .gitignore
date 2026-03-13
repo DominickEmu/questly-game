@@ -5,6 +5,7 @@ nul
 backend/.env
 credentials.json
 backend/credentials.json
+CLAUDE.md
 
 # SQLite dev database
 *.db
