@@ -1,5 +1,8 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from database import Base, engine
@@ -18,7 +21,19 @@ def _migrate_add_story_ender():
             conn.commit()
 
 
+def _migrate_add_equipped_slots():
+    """Add equipped_* columns to profile if they don't exist (for existing DBs)."""
+    with engine.connect() as conn:
+        result = conn.execute(text("PRAGMA table_info(profile)"))
+        columns = [row[1] for row in result]
+        for col in ("equipped_hat", "equipped_face", "equipped_body", "equipped_hand"):
+            if col not in columns:
+                conn.execute(text(f"ALTER TABLE profile ADD COLUMN {col} INTEGER"))
+        conn.commit()
+
+
 _migrate_add_story_ender()
+_migrate_add_equipped_slots()
 
 app = FastAPI(title="Questly API")
 
@@ -34,6 +49,9 @@ app.include_router(profile.router, prefix="/api")
 app.include_router(shop.router, prefix="/api")
 app.include_router(gcal.router, prefix="/api")
 app.include_router(story.router, prefix="/api")
+
+_images_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")
+app.mount("/images", StaticFiles(directory=_images_dir), name="images")
 
 
 @app.get("/")

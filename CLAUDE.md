@@ -91,24 +91,36 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - `GET/POST /api/tasks` — List/create tasks
 - `GET/PUT/DELETE /api/tasks/{id}` — Single task CRUD
 - `POST /api/tasks/{id}/complete` — Mark complete + award rewards + clone if recurring
-- `GET/PUT /api/profile` — Get/update profile
+- `GET/PUT /api/profile` — Get/update profile (PUT accepts `equipped_hat/face/body/hand: int|null` to equip/unequip)
 - `GET /api/shop` — List shop items
 - `POST /api/shop/buy/{item_id}?currency=coins|gems` — Purchase item
+- `POST /api/shop/equip/{item_id}` — Equip a purchased accessory (sets the matching slot on profile)
 - `GET /api/shop/purchases` — List purchases
+- `GET /images/{filename}` — Static file serving for avatar images
 - `GET /api/gcal/status` — Google Calendar connection status
 - `GET /api/gcal/auth-url` — Get OAuth authorization URL
 - `GET /api/gcal/callback` — OAuth callback handler
 - `POST /api/gcal/sync` — Sync events from Google Calendar
 - `POST /api/gcal/disconnect` — Disconnect Google Calendar
 - `GET/PUT /api/gcal/keywords` — Manage difficulty classification keywords
- - `GET /api/story` — Get the full narrative as a list of story segments (oldest first)
- - `POST /api/story/reset` — Delete all story segments and start a fresh narrative on the next completion
+- `GET /api/story` — Get the full narrative as a list of story segments (oldest first)
+- `POST /api/story/reset` — Delete all story segments and start a fresh narrative on the next completion
+
+## Avatar System
+- **Images** live in `DH301/images/` and are served as static files at `/images/` by FastAPI
+- **Base avatar**: `avatar_base.png` — always displayed, no purchase required
+- **Accessories** are organized into four equippable slots: `hat`, `face`, `body`, `hand`
+- **Layering**: images are transparent PNGs drawn to the same canvas size; stacked with `position: absolute` so they overlay the base avatar perfectly
+- **Equip flow**: buy item in Shop → "Equip" button appears → `POST /api/shop/equip/{id}` sets `profile.equipped_{slot}` → Profile page re-renders with new layer
+- **Unequip**: click "Remove" in Shop card → `PUT /api/profile` with `{equipped_hat: null}` etc.
+- **One item per slot**: equipping a new hat auto-replaces the old one
 
 ## Database Models (notable fields)
 ### Profile
 - `google_token` — serialized OAuth credentials
 - `google_calendar_id` — which calendar to sync (default: "primary")
 - `difficulty_keywords` — JSON string of custom difficulty keywords
+- `equipped_hat/face/body/hand` — ShopItem.id of currently equipped accessory in each slot (nullable int)
 
 ### Task
 - `recurrence` — "none", "daily", or "weekly"
@@ -127,6 +139,8 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - **Database reset:** Delete `backend/questly.db` and restart the backend — it will recreate and re-seed automatically.
 - **Google Calendar issues:** Ensure `.env` file exists in `backend/` with valid credentials. Delete DB and restart if token gets corrupted.
  - **AI story issues:** Set either `GEMINI_API_KEY` (free at [Google AI Studio](https://aistudio.google.com/apikey)) or `ANTHROPIC_API_KEY`. If both are missing or invalid, task completion and rewards still work; the story field will be `null`. After adding new tables or columns (e.g. StorySegment, Task.story_ender), delete `backend/questly.db` and restart the backend to recreate the schema.
+ - **New shop items not showing:** The seed only runs if the shop table is empty. To get real accessory items after upgrading from placeholder items, delete `backend/questly.db` and restart the backend.
+ - **Avatar images not loading:** Ensure the backend is running (images are served from `/images/` by FastAPI). The Vite proxy forwards `/images` to the backend.
 
 
 DISTILLED_AESTHETICS_PROMPT = """

@@ -3,9 +3,11 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import ShopItem, Purchase, Profile
-from schemas import ShopItemOut, PurchaseOut
+from schemas import ShopItemOut, PurchaseOut, ProfileOut
 
 router = APIRouter(tags=["shop"])
+
+EQUIPPABLE_SLOTS = {"hat", "face", "body", "hand"}
 
 
 def _get_or_create_profile(db: Session) -> Profile:
@@ -53,6 +55,25 @@ def buy_item(
     db.commit()
     db.refresh(purchase)
     return purchase
+
+
+@router.post("/shop/equip/{item_id}", response_model=ProfileOut)
+def equip_item(item_id: int, db: Session = Depends(get_db)):
+    item = db.get(ShopItem, item_id)
+    if not item:
+        raise HTTPException(404, "Item not found")
+    if item.category not in EQUIPPABLE_SLOTS:
+        raise HTTPException(400, "This item cannot be equipped")
+
+    owned = db.query(Purchase).filter(Purchase.shop_item_id == item_id).first()
+    if not owned:
+        raise HTTPException(400, "You don't own this item")
+
+    profile = _get_or_create_profile(db)
+    setattr(profile, f"equipped_{item.category}", item_id)
+    db.commit()
+    db.refresh(profile)
+    return profile
 
 
 @router.get("/shop/purchases", response_model=list[PurchaseOut])

@@ -7,7 +7,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 1rem;
 }
 
@@ -22,6 +22,33 @@
   font-weight: 600;
   font-size: 0.88rem;
   animation: fadeSlideUp 0.25s ease-out;
+}
+
+.toastError {
+  background: rgba(200, 80, 80, 0.08);
+  border-color: rgba(200, 80, 80, 0.3);
+  color: #c85050;
+}
+
+.sectionHeader {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin: 2rem 0 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.categoryBlock {
+  margin-bottom: 1.5rem;
+}
+
+.categoryLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 0 0 0.6rem;
 }
 
 .section {

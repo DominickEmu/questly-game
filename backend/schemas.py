@@ -13,6 +13,10 @@ class ProfileOut(BaseModel):
     gems: int
     genre_preference: str
     avatar_url: str | None
+    equipped_hat: int | None
+    equipped_face: int | None
+    equipped_body: int | None
+    equipped_hand: int | None
 
     model_config = {"from_attributes": True}
 
@@ -20,6 +24,10 @@ class ProfileOut(BaseModel):
 class ProfileUpdate(BaseModel):
     username: str | None = None
     genre_preference: str | None = None
+    equipped_hat: int | None = None
+    equipped_face: int | None = None
+    equipped_body: int | None = None
+    equipped_hand: int | None = None
 
 
 # ── Tasks ────────────────────────────────────────────────

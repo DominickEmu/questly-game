@@ -2,27 +2,67 @@ from database import SessionLocal
 from models import ShopItem, Profile
 
 DEFAULT_ITEMS = [
+    # ── Hats ─────────────────────────────────────────────
     {
-        "name": "Flame Sword Avatar",
-        "description": "A blazing sword icon for your profile.",
-        "category": "avatar",
+        "name": "Detective Hat",
+        "description": "A weathered felt hat worn by those who uncover the truth.",
+        "category": "hat",
+        "price_coins": 75,
+        "price_gems": 0,
+        "image_url": "/images/avatar_hat_detectivehat.png",
+    },
+    {
+        "name": "Wizard Hat",
+        "description": "A towering hat crackling with arcane energy.",
+        "category": "hat",
+        "price_coins": 120,
+        "price_gems": 5,
+        "image_url": "/images/avatar_hat_wizardhat.png",
+    },
+    # ── Face ─────────────────────────────────────────────
+    {
+        "name": "Glasses",
+        "description": "Round spectacles that sharpen your gaze and your wit.",
+        "category": "face",
         "price_coins": 50,
         "price_gems": 0,
+        "image_url": "/images/avatar_face_glasses.png",
     },
     {
-        "name": "Shadow Cloak Avatar",
-        "description": "A mysterious dark cloak avatar.",
-        "category": "avatar",
+        "name": "Sci Visor",
+        "description": "A sleek heads-up display from a distant technological era.",
+        "category": "face",
+        "price_coins": 90,
+        "price_gems": 3,
+        "image_url": "/images/avatar_face_scivisor.png",
+    },
+    # ── Body ─────────────────────────────────────────────
+    {
+        "name": "Robe",
+        "description": "Flowing robes adorned with the crests of ancient academies.",
+        "category": "body",
         "price_coins": 100,
-        "price_gems": 5,
+        "price_gems": 0,
+        "image_url": "/images/avatar_body_robe.png",
     },
     {
-        "name": "Golden Shield Avatar",
-        "description": "A shining golden shield for the brave.",
-        "category": "avatar",
-        "price_coins": 150,
+        "name": "Ghost Cloak",
+        "description": "A translucent shroud that lets you slip between the living and the dead.",
+        "category": "body",
+        "price_coins": 180,
         "price_gems": 8,
+        "image_url": "/images/avatar_body_ghost.png",
     },
+    # ── Hand ─────────────────────────────────────────────
+    {
+        "name": "Staff",
+        "description": "A gnarled wooden staff pulsing with residual magic.",
+        "category": "hand",
+        "price_coins": 80,
+        "price_gems": 2,
+        "image_url": "/images/avatar_hand_staff.png",
+    },
+    # ── Rewards ──────────────────────────────────────────
     {
         "name": "Break Potion",
         "description": "Redeem for a 15-minute guilt-free break!",
@@ -43,20 +83,6 @@ DEFAULT_ITEMS = [
         "category": "reward",
         "price_coins": 200,
         "price_gems": 10,
-    },
-    {
-        "name": "Custom Quest Theme",
-        "description": "Unlock a custom color theme for your quests.",
-        "category": "custom",
-        "price_coins": 80,
-        "price_gems": 3,
-    },
-    {
-        "name": "Title: Dragon Slayer",
-        "description": "Display the title 'Dragon Slayer' on your profile.",
-        "category": "custom",
-        "price_coins": 120,
-        "price_gems": 6,
     },
 ]
 

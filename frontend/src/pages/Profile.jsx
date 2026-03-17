@@ -4,11 +4,14 @@ import { api } from '../api';
 import styles from './Profile.module.css';
 
 const GENRES = ['fantasy', 'sci-fi', 'mystery', 'horror', 'adventure', 'comedy'];
+const SLOTS = ['hat', 'face', 'body', 'hand'];
+const SLOT_LABELS = { hat: 'Hat', face: 'Face', body: 'Body', hand: 'Hand' };
 
 export default function Profile({ profile, onUpdate }) {
   const [username, setUsername] = useState('');
   const [genre, setGenre] = useState('fantasy');
   const [saved, setSaved] = useState(false);
+  const [shopItems, setShopItems] = useState([]);
 
   const [gcalConnected, setGcalConnected] = useState(false);
   const [gcalLoading, setGcalLoading] = useState(true);
@@ -58,6 +61,7 @@ export default function Profile({ profile, onUpdate }) {
   useEffect(() => {
     checkGcalStatus();
     loadKeywords();
+    api.getShopItems().then(setShopItems);
   }, [checkGcalStatus, loadKeywords]);
 
   useEffect(() => {
@@ -162,10 +166,43 @@ export default function Profile({ profile, onUpdate }) {
   const xpForNext = 100 * profile.level;
   const xpPercent = Math.min(100, Math.round((profile.xp / xpForNext) * 100));
 
+  // Build list of equipped accessory image URLs in slot order (hat → face → body → hand)
+  const equippedLayers = SLOTS
+    .map((slot) => {
+      const itemId = profile[`equipped_${slot}`];
+      if (!itemId) return null;
+      return shopItems.find((i) => i.id === itemId)?.image_url ?? null;
+    })
+    .filter(Boolean);
+
   return (
     <div>
       <h1>Adventurer Profile</h1>
 
+      {/* ── Avatar ──────────────────────────────────────── */}
+      <div className={styles.avatarSection}>
+        <div className={styles.avatarFrame}>
+          <img src="/images/avatar_base.png" alt="Avatar" className={styles.avatarLayer} />
+          {equippedLayers.map((url, i) => (
+            <img key={i} src={url} alt="" className={styles.avatarLayer} />
+          ))}
+        </div>
+        <div className={styles.equipSlots}>
+          {SLOTS.map((slot) => {
+            const itemId = profile[`equipped_${slot}`];
+            const item = shopItems.find((i) => i.id === itemId);
+            return (
+              <div key={slot} className={`${styles.slot} ${item ? styles.slotFilled : ''}`}>
+                <span className={styles.slotLabel}>{SLOT_LABELS[slot]}</span>
+                <span className={styles.slotItem}>{item ? item.name : '—'}</span>
+              </div>
+            );
+          })}
+          <p className={styles.equipHint}>Equip accessories in the Shop</p>
+        </div>
+      </div>
+
+      {/* ── Stats ───────────────────────────────────────── */}
       <div className={styles.statsGrid}>
         <div className={styles.stat}>
           <div className={styles.statLabel}>Level</div>
@@ -188,6 +225,7 @@ export default function Profile({ profile, onUpdate }) {
         </div>
       </div>
 
+      {/* ── Google Calendar ─────────────────────────────── */}
       <div className={styles.gcalSection}>
         <h2>Google Calendar</h2>
         {gcalLoading ? (
@@ -286,6 +324,7 @@ export default function Profile({ profile, onUpdate }) {
         </div>
       </div>
 
+      {/* ── Settings ────────────────────────────────────── */}
       <div className={styles.form}>
         <label>Display Name</label>
         <input value={username} onChange={(e) => setUsername(e.target.value)} />

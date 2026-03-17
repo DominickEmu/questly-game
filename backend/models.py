@@ -21,6 +21,10 @@ class Profile(Base):
         Text, nullable=True, default="primary"
     )
     difficulty_keywords: Mapped[str | None] = mapped_column(Text, nullable=True)
+    equipped_hat: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    equipped_face: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    equipped_body: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    equipped_hand: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 class Task(Base):

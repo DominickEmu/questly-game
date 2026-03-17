@@ -34,6 +34,8 @@ export const api = {
   // Shop
   getShopItems: () => request('/shop'),
   buyItem: (id, currency = 'coins') => request(`/shop/buy/${id}?currency=${currency}`, { method: 'POST' }),
+  equipItem: (id) => request(`/shop/equip/${id}`, { method: 'POST' }),
+  unequipSlot: (slot) => request('/profile', { method: 'PUT', body: JSON.stringify({ [`equipped_${slot}`]: null }) }),
   getPurchases: () => request('/shop/purchases'),
 
   // Google Calendar
