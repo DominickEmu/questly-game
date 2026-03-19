@@ -46,6 +46,10 @@ export const api = {
   gcalGetKeywords: () => request('/gcal/keywords'),
   gcalUpdateKeywords: (data) => request('/gcal/keywords', { method: 'PUT', body: JSON.stringify(data) }),
 
+  // Gmail
+  gmailStatus: () => request('/gmail/status'),
+  gmailSync: () => request('/gmail/sync', { method: 'POST' }),
+
   // Story
   getStory: () => request('/story'),
   resetStory: () => request('/story/reset', { method: 'POST' }),

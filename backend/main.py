@@ -1,12 +1,15 @@
 import os
 
+# Allow OAuth over HTTP for local development
+os.environ.setdefault("OAUTHLIB_INSECURE_TRANSPORT", "1")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from database import Base, engine
-from routers import tasks, profile, shop, gcal, story
+from routers import tasks, profile, shop, gcal, story, gmail
 
 Base.metadata.create_all(bind=engine)
 
@@ -60,6 +63,7 @@ app.include_router(profile.router, prefix="/api")
 app.include_router(shop.router, prefix="/api")
 app.include_router(gcal.router, prefix="/api")
 app.include_router(story.router, prefix="/api")
+app.include_router(gmail.router, prefix="/api")
 
 _images_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")
 app.mount("/images", StaticFiles(directory=_images_dir), name="images")

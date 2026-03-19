@@ -20,6 +20,12 @@ export default function Profile({ profile, onUpdate }) {
   const [syncResult, setSyncResult] = useState(null);
   const [gcalError, setGcalError] = useState(null);
 
+  const [gmailConnected, setGmailConnected] = useState(false);
+  const [gmailLoading, setGmailLoading] = useState(true);
+  const [gmailSyncResult, setGmailSyncResult] = useState(null);
+  const [gmailError, setGmailError] = useState(null);
+  const [gmailSyncing, setGmailSyncing] = useState(false);
+
   const [defaultKeywords, setDefaultKeywords] = useState({ hard: [], easy: [] });
   const [customHard, setCustomHard] = useState([]);
   const [customEasy, setCustomEasy] = useState([]);
@@ -60,11 +66,23 @@ export default function Profile({ profile, onUpdate }) {
     }
   }, [profile]);
 
+  const checkGmailStatus = useCallback(async () => {
+    try {
+      const status = await api.gmailStatus();
+      setGmailConnected(status.connected);
+    } catch {
+      setGmailConnected(false);
+    } finally {
+      setGmailLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     checkGcalStatus();
+    checkGmailStatus();
     loadKeywords();
     api.getShopItems().then(setShopItems);
-  }, [checkGcalStatus, loadKeywords]);
+  }, [checkGcalStatus, checkGmailStatus, loadKeywords]);
 
   useEffect(() => {
     if (searchParams.get('gcal') === 'connected') {
@@ -113,6 +131,22 @@ export default function Profile({ profile, onUpdate }) {
       setSyncResult(null);
     } catch (err) {
       setGcalError(err.message);
+    }
+  };
+
+  const handleGmailSync = async () => {
+    try {
+      setGmailError(null);
+      setGmailSyncResult(null);
+      setGmailSyncing(true);
+      const result = await api.gmailSync();
+      setGmailSyncResult(result);
+      setGmailConnected(true);
+      setTimeout(() => setGmailSyncResult(null), 5000);
+    } catch (err) {
+      setGmailError(err.message);
+    } finally {
+      setGmailSyncing(false);
     }
   };
 
@@ -324,6 +358,40 @@ export default function Profile({ profile, onUpdate }) {
             {kwSaved && <span className={styles.saved}>Saved!</span>}
           </div>
         </div>
+      </div>
+
+      {/* ── Gmail Inbox ────────────────────────────────── */}
+      <div className={styles.gcalSection}>
+        <h2>Gmail Inbox</h2>
+        {gmailLoading ? (
+          <p className={styles.gcalMuted}>Checking Gmail access...</p>
+        ) : gmailConnected ? (
+          <div>
+            <span className={styles.gcalBadge}>Connected</span>
+            <button
+              className="btn-primary"
+              onClick={handleGmailSync}
+              disabled={gmailSyncing}
+              style={{ marginLeft: '0.75rem' }}
+            >
+              {gmailSyncing ? 'Scanning...' : 'Sync Inbox'}
+            </button>
+          </div>
+        ) : (
+          <p className={styles.gcalMuted}>
+            Gmail access is granted when you connect Google Calendar.
+            {!gcalConnected && ' Connect Google Calendar above to enable inbox sync.'}
+            {gcalConnected && ' Disconnect and reconnect to grant Gmail permissions.'}
+          </p>
+        )}
+
+        {gmailSyncResult && (
+          <div className={styles.gcalResult}>
+            Imported {gmailSyncResult.imported} task{gmailSyncResult.imported !== 1 ? 's' : ''} from inbox,
+            skipped {gmailSyncResult.skipped}.
+          </div>
+        )}
+        {gmailError && <div className={styles.gcalError}>{gmailError}</div>}
       </div>
 
       {/* ── Settings ────────────────────────────────────── */}

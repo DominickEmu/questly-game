@@ -1,7 +1,7 @@
 # Questly - Gamified To-Do List App
 
 ## Project Overview
-A gamified to-do list app for a DH301 AI class project. Tasks are "quests" that earn XP, coins, and gems. Single-user mode (no auth). Google Calendar integration for syncing events as quests. An AI-powered narrative system (backed by Anthropic Claude) can turn completed quests into story segments, building an ongoing storyline over time.
+A gamified to-do list app for a DH301 AI class project. Tasks are "quests" that earn XP, coins, and gems. Single-user mode (no auth). Google Calendar integration for syncing events as quests. Gmail inbox monitoring uses Gemini AI to parse actionable emails into scheduled tasks. An AI-powered narrative system (backed by Google Gemini or Anthropic Claude) can turn completed quests into story segments, building an ongoing storyline over time.
 
 ## Tech Stack
 - **Frontend:** React 18 + Vite + React Router + CSS Modules
@@ -85,6 +85,7 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - **Separate routers** for tasks, profile, shop, gcal, story — keeps AI narrative endpoints isolated and easy to evolve.
 - **Task recurrence:** Clone-on-complete. Completing a daily/weekly task creates a new pending copy with the next due_date. The completed task stays as history.
 - **Google Calendar sync:** OAuth 2.0 flow → fetches 30 days of events → creates Task records with auto-difficulty based on keywords. Tasks track `source="gcal"` and `source_id` for deduplication.
+- **Gmail inbox monitoring:** Uses the same Google OAuth token (with `gmail.readonly` scope). On "Sync Inbox", fetches last 7 days of emails, sends batch to Gemini AI to identify actionable emails, and creates tasks with AI-extracted titles, due dates, and difficulty. Non-actionable emails (newsletters, receipts, notifications) are skipped. Tasks track `source="gmail"` and `source_id=message_id` for deduplication.
 - **AI story generation (backend):** Story segments are generated via **Google Gemini** or **Anthropic Claude** when the corresponding API key is set; stored in `StorySegment` and exposed by the story router. Each segment uses the completed quest as a plot event and ends on a cliffhanger unless the task is marked **Story ender**, in which case the AI writes a conclusion. If no key is set or the call fails, completions and rewards still succeed; story generation is skipped.
 
 ## API Endpoints
@@ -105,6 +106,8 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - `GET/PUT /api/gcal/keywords` — Manage difficulty classification keywords
 - `GET /api/story` — Get the full narrative as a list of story segments (oldest first)
 - `POST /api/story/reset` — Delete all story segments and start a fresh narrative on the next completion
+- `GET /api/gmail/status` — Check if Gmail scope is granted
+- `POST /api/gmail/sync` — Fetch recent emails, parse actionable ones with Gemini AI, create tasks
 
 ## Avatar System
 - **Images** live in `DH301/images/` and are served as static files at `/images/` by FastAPI

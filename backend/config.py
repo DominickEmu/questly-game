@@ -18,7 +18,10 @@ GOOGLE_REDIRECT_URI = os.environ.get(
 )
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 
-GOOGLE_SCOPES = ["https://www.googleapis.com/auth/calendar.events.readonly"]
+GOOGLE_SCOPES = [
+    "https://www.googleapis.com/auth/calendar.events.readonly",
+    "https://www.googleapis.com/auth/gmail.readonly",
+]
 
 # AI story generation: use either (Gemini is free tier at aistudio.google.com)
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")

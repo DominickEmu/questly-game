@@ -23,6 +23,7 @@ from models import Profile, Task
 router = APIRouter(prefix="/gcal", tags=["google-calendar"])
 
 
+
 def _get_or_create_profile(db: Session) -> Profile:
     profile = db.get(Profile, 1)
     if not profile:
@@ -97,6 +98,9 @@ def gcal_auth_url():
         )
 
     flow = _build_flow()
+    # Disable PKCE — our callback creates a fresh Flow that loses the verifier
+    flow.autogenerate_code_verifier = False
+    flow.code_verifier = None
     auth_url, _ = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
@@ -110,8 +114,11 @@ def gcal_auth_url():
 
 @router.get("/callback")
 def gcal_callback(code: str = Query(...), db: Session = Depends(get_db)):
-    flow = _build_flow()
-    flow.fetch_token(code=code)
+    try:
+        flow = _build_flow()
+        flow.fetch_token(code=code)
+    except Exception as exc:
+        raise HTTPException(400, f"OAuth token exchange failed: {exc}")
 
     creds = flow.credentials
     profile = _get_or_create_profile(db)
