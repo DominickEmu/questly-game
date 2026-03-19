@@ -101,6 +101,7 @@ class ShopItemOut(BaseModel):
     price_coins: int
     price_gems: int
     image_url: str | None
+    equipped_image_url: str | None
 
     model_config = {"from_attributes": True}
 

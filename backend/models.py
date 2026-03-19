@@ -67,6 +67,7 @@ class ShopItem(Base):
     price_coins: Mapped[int] = mapped_column(Integer, default=0)
     price_gems: Mapped[int] = mapped_column(Integer, default=0)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    equipped_image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Purchase(Base):

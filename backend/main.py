@@ -32,8 +32,19 @@ def _migrate_add_equipped_slots():
         conn.commit()
 
 
+def _migrate_add_equipped_image_url():
+    """Add equipped_image_url column to shop_items if it doesn't exist."""
+    with engine.connect() as conn:
+        result = conn.execute(text("PRAGMA table_info(shop_items)"))
+        columns = [row[1] for row in result]
+        if "equipped_image_url" not in columns:
+            conn.execute(text("ALTER TABLE shop_items ADD COLUMN equipped_image_url TEXT"))
+            conn.commit()
+
+
 _migrate_add_story_ender()
 _migrate_add_equipped_slots()
+_migrate_add_equipped_image_url()
 
 app = FastAPI(title="Questly API")
 

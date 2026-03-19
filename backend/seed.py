@@ -10,6 +10,7 @@ DEFAULT_ITEMS = [
         "price_coins": 75,
         "price_gems": 0,
         "image_url": "/images/avatar_hat_detectivehat.png",
+        "equipped_image_url": "/images/avatar_equipped_detectivehat.png",
     },
     {
         "name": "Wizard Hat",
@@ -18,6 +19,7 @@ DEFAULT_ITEMS = [
         "price_coins": 120,
         "price_gems": 5,
         "image_url": "/images/avatar_hat_wizardhat.png",
+        "equipped_image_url": "/images/avatar_equipped_wizardhat.png",
     },
     # ── Face ─────────────────────────────────────────────
     {
@@ -27,6 +29,7 @@ DEFAULT_ITEMS = [
         "price_coins": 50,
         "price_gems": 0,
         "image_url": "/images/avatar_face_glasses.png",
+        "equipped_image_url": "/images/avatar_equipped_glasses.png",
     },
     {
         "name": "Sci Visor",
@@ -35,6 +38,7 @@ DEFAULT_ITEMS = [
         "price_coins": 90,
         "price_gems": 3,
         "image_url": "/images/avatar_face_scivisor.png",
+        "equipped_image_url": "/images/avatar_equipped_scivisor.png",
     },
     # ── Body ─────────────────────────────────────────────
     {
@@ -44,6 +48,7 @@ DEFAULT_ITEMS = [
         "price_coins": 100,
         "price_gems": 0,
         "image_url": "/images/avatar_body_robe.png",
+        "equipped_image_url": "/images/avatar_equipped_robe.png",
     },
     {
         "name": "Ghost Cloak",
@@ -52,6 +57,7 @@ DEFAULT_ITEMS = [
         "price_coins": 180,
         "price_gems": 8,
         "image_url": "/images/avatar_body_ghost.png",
+        "equipped_image_url": "/images/avatar_equipped_ghost.png",
     },
     # ── Hand ─────────────────────────────────────────────
     {
@@ -61,6 +67,7 @@ DEFAULT_ITEMS = [
         "price_coins": 80,
         "price_gems": 2,
         "image_url": "/images/avatar_hand_staff.png",
+        "equipped_image_url": "/images/avatar_equipped_staff.png",
     },
     # ── Rewards ──────────────────────────────────────────
     {
@@ -93,6 +100,14 @@ def seed_defaults():
         if db.query(ShopItem).count() == 0:
             for data in DEFAULT_ITEMS:
                 db.add(ShopItem(**data))
+            db.commit()
+        else:
+            # Backfill equipped_image_url for existing items that are missing it
+            _EQUIPPED_URLS = {d["name"]: d["equipped_image_url"] for d in DEFAULT_ITEMS if "equipped_image_url" in d}
+            for item in db.query(ShopItem).all():
+                url = _EQUIPPED_URLS.get(item.name)
+                if url and not item.equipped_image_url:
+                    item.equipped_image_url = url
             db.commit()
 
         if not db.get(Profile, 1):

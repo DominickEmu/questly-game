@@ -6,6 +6,8 @@ import styles from './Profile.module.css';
 const GENRES = ['fantasy', 'sci-fi', 'mystery', 'horror', 'adventure', 'comedy'];
 const SLOTS = ['hat', 'face', 'body', 'hand'];
 const SLOT_LABELS = { hat: 'Hat', face: 'Face', body: 'Body', hand: 'Hand' };
+// Layer order from bottom to top: base → body → hand → face → hat
+const LAYER_ORDER = ['body', 'hand', 'face', 'hat'];
 
 export default function Profile({ profile, onUpdate }) {
   const [username, setUsername] = useState('');
@@ -166,12 +168,12 @@ export default function Profile({ profile, onUpdate }) {
   const xpForNext = 100 * profile.level;
   const xpPercent = Math.min(100, Math.round((profile.xp / xpForNext) * 100));
 
-  // Build list of equipped accessory image URLs in slot order (hat → face → body → hand)
-  const equippedLayers = SLOTS
+  // Build equipped layers in render order: body → hand → face → hat (bottom to top)
+  const equippedLayers = LAYER_ORDER
     .map((slot) => {
       const itemId = profile[`equipped_${slot}`];
       if (!itemId) return null;
-      return shopItems.find((i) => i.id === itemId)?.image_url ?? null;
+      return shopItems.find((i) => i.id === itemId)?.equipped_image_url ?? null;
     })
     .filter(Boolean);
 
