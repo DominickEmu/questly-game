@@ -8,7 +8,7 @@ A gamified to-do list app for a DH301 AI class project. Tasks are "quests" that 
 - **Backend:** Python FastAPI + SQLAlchemy + SQLite
 - **Database:** SQLite (`backend/questly.db`, auto-created on first run)
 - **Google Calendar:** OAuth 2.0 + Google Calendar API for event sync
-- **Styling:** OSRS-inspired dark theme (dark browns, rustic golds, parchment tones) with Cinzel + Outfit fonts
+- **Styling:** OSRS-inspired dark theme with genre-based color theming (CSS `--accent-rgb` variable + `[data-theme]` selectors). Cinzel + Outfit fonts
 
 ## Project Structure
 ```
@@ -20,15 +20,16 @@ DH301/
 │   ├── models.py            # ORM models: Profile, Task, StorySegment, ShopItem, Purchase
 │   ├── schemas.py           # Pydantic request/response schemas (incl. RewardOut.story, StorySegmentOut)
 │   ├── seed.py              # Seeds default shop items + profile on startup
-│   ├── story_generator.py   # Anthropic client + prompt templates + generate_story_segment()
+│   ├── story_generator.py   # AI story generation (Gemini/Claude) with personal context injection
 │   ├── requirements.txt
 │   ├── .env                 # Google OAuth + Anthropic secrets (gitignored)
 │   ├── .env.example         # Template for required env vars (incl. ANTHROPIC_API_KEY)
 │   └── routers/
-│       ├── tasks.py         # Task CRUD + /complete with reward + recurrence cloning (prepared for story gen)
-│       ├── profile.py       # Get/update single-user profile (incl. genre preference for story tone)
+│       ├── tasks.py         # Task CRUD + /complete with reward + recurrence cloning + story gen
+│       ├── profile.py       # Get/update single-user profile (incl. genre, interests, life_variables, story_elements)
 │       ├── shop.py          # Shop items + purchase with coins/gems
-│       ├── gcal.py          # Google Calendar OAuth + sync + keyword management
+│       ├── gcal.py          # Google Calendar OAuth (PKCE disabled) + sync + keyword management
+│       ├── gmail.py         # Gmail inbox monitoring + Gemini AI email parsing
 │       └── story.py         # Story read/reset endpoints backed by StorySegment table
 └── frontend/
     ├── vite.config.js       # Proxies /api to localhost:8000
@@ -42,7 +43,9 @@ DH301/
         │   ├── Weekly.jsx     # Tasks grouped by weekday (current week only)
         │   ├── Calendar.jsx   # Full monthly calendar grid with day detail panel
         │   ├── Shop.jsx       # Buy items with currency
-        │   └── Profile.jsx    # Stats, XP bar, settings
+        │   ├── Profile.jsx    # Stats, XP bar, interests, story characters, story elements, settings
+        │   ├── Onboarding.jsx # Multi-step character creation (name, genre, interests, characters, story elements)
+        │   └── Onboarding.module.css
         └── components/
             ├── Navbar.jsx      # Nav links (5 pages) + currency display
             ├── TaskCard.jsx    # Single task with difficulty + recurrence badges
@@ -87,6 +90,10 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - **Google Calendar sync:** OAuth 2.0 flow → fetches 30 days of events → creates Task records with auto-difficulty based on keywords. Tasks track `source="gcal"` and `source_id` for deduplication.
 - **Gmail inbox monitoring:** Uses the same Google OAuth token (with `gmail.readonly` scope). On "Sync Inbox", fetches last 7 days of emails, sends batch to Gemini AI to identify actionable emails, and creates tasks with AI-extracted titles, due dates, and difficulty. Non-actionable emails (newsletters, receipts, notifications) are skipped. Tasks track `source="gmail"` and `source_id=message_id` for deduplication.
 - **AI story generation (backend):** Story segments are generated via **Google Gemini** or **Anthropic Claude** when the corresponding API key is set; stored in `StorySegment` and exposed by the story router. Each segment uses the completed quest as a plot event and ends on a cliffhanger unless the task is marked **Story ender**, in which case the AI writes a conclusion. If no key is set or the call fails, completions and rewards still succeed; story generation is skipped.
+- **Personal context in stories:** The story generator's `_build_personal_context(profile)` helper extracts likes/dislikes from `profile.interests` (JSON), character entries from `profile.life_variables` (JSON array), and free-form directions from `profile.story_elements` (text). This block is appended to every system prompt with instructions to weave details naturally without forcing every detail into every paragraph.
+- **Onboarding gate:** `profile.setup_complete` (boolean, default false) controls whether the app shows the onboarding flow or the normal dashboard. When false, `App.jsx` renders only `<Onboarding>` (no Navbar, no routes). Completing onboarding sets `setup_complete: true` and the normal app loads.
+- **Genre-based color theming:** CSS uses `--accent-rgb` variable pattern allowing `rgba(var(--accent-rgb), opacity)` throughout all module CSS files. `[data-theme]` attribute selectors on `<html>` override the RGB values per genre: fantasy (gold, default), sci-fi (neon green), mystery (noir/silver), horror (dark purple), adventure (light blue), comedy (warm red). App.jsx sets the attribute based on `profile.genre_preference`.
+- **OAuth PKCE disabled:** Google OAuth flow has PKCE explicitly disabled (`flow.autogenerate_code_verifier = False`) because the stateless callback can't persist the code_verifier between auth URL generation and token exchange.
 
 ## API Endpoints
 - `GET/POST /api/tasks` — List/create tasks
@@ -124,6 +131,10 @@ GEMINI_API_KEY=<your-gemini-api-key>
 - `google_calendar_id` — which calendar to sync (default: "primary")
 - `difficulty_keywords` — JSON string of custom difficulty keywords
 - `equipped_hat/face/body/hand` — ShopItem.id of currently equipped accessory in each slot (nullable int)
+- `setup_complete` — boolean, gates onboarding vs normal app (default false)
+- `interests` — JSON string `{"likes": [...], "dislikes": [...]}`, fed into AI story prompts
+- `life_variables` — JSON array `[{"name": "Mark", "role": "antagonist", "description": "Mark from accounting"}]`, woven into stories as characters
+- `story_elements` — free-form text with extra story directions (settings, plotlines, etc.), appended to AI system prompts
 
 ### Task
 - `recurrence` — "none", "daily", or "weekly"

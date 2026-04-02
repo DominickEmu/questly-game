@@ -30,6 +30,7 @@ export const api = {
   // Profile
   getProfile: () => request('/profile'),
   updateProfile: (data) => request('/profile', { method: 'PUT', body: JSON.stringify(data) }),
+  devAddCurrency: () => request('/profile/dev', { method: 'POST' }),
 
   // Shop
   getShopItems: () => request('/shop'),
@@ -53,4 +54,18 @@ export const api = {
   // Story
   getStory: () => request('/story'),
   resetStory: () => request('/story/reset', { method: 'POST' }),
+  getArchives: () => request('/story/archives'),
+  archiveStory: (title) => request('/story/archive', { method: 'POST', body: JSON.stringify({ title }) }),
+  renameArchive: (id, title) => request(`/story/archives/${id}`, { method: 'PUT', body: JSON.stringify({ title }) }),
+  deleteArchive: (id) => request(`/story/archives/${id}`, { method: 'DELETE' }),
+  rateSegment: (id, rating, feedback) =>
+    request(`/story/segments/${id}/rate`, { method: 'PUT', body: JSON.stringify({ rating, feedback: feedback || null }) }),
+  narrateArchive: async (id) => {
+    const res = await fetch(`${BASE}/story/archives/${id}/narrate`, { method: 'POST' });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Narration failed');
+    }
+    return res.blob();
+  },
 };

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import traceback
 from sqlalchemy.orm import Session
 
@@ -109,6 +110,56 @@ Title: {task_title}
 Remember: 4–5 complete sentences, resolve the story, no cliffhanger. Write only the closing paragraph."""
 
 
+def _build_feedback_context(db: Session) -> str:
+    """Build a feedback block from liked/disliked story segments."""
+    rated = (
+        db.query(StorySegment)
+        .filter(StorySegment.rating != 0, StorySegment.feedback.isnot(None))
+        .order_by(StorySegment.created_at.desc())
+        .limit(10)
+        .all()
+    )
+    if not rated:
+        return ""
+    likes = [s.feedback for s in rated if s.rating == 1 and s.feedback]
+    dislikes = [s.feedback for s in rated if s.rating == -1 and s.feedback]
+    lines = []
+    if dislikes:
+        lines.append("READER FEEDBACK — avoid these story elements:")
+        lines.extend(f"- {fb}" for fb in dislikes)
+    if likes:
+        lines.append("READER FEEDBACK — keep doing these things:")
+        lines.extend(f"- {fb}" for fb in likes)
+    return "\n".join(lines)
+
+
+def _build_personal_context(profile: Profile) -> str:
+    """Build a personal-context block from profile interests and life variables."""
+    parts = []
+    if profile.interests:
+        try:
+            data = json.loads(profile.interests)
+            likes = data.get("likes", [])
+            dislikes = data.get("dislikes", [])
+            if likes:
+                parts.append(f"The adventurer enjoys: {', '.join(likes)}.")
+            if dislikes:
+                parts.append(f"The adventurer dislikes: {', '.join(dislikes)}.")
+        except (json.JSONDecodeError, TypeError):
+            pass
+    if profile.life_variables:
+        try:
+            variables = json.loads(profile.life_variables)
+            if variables:
+                lines = [f"- {v['name']} ({v.get('role', 'character')}): {v.get('description', '')}" for v in variables]
+                parts.append("Key characters in the adventurer's world:\n" + "\n".join(lines))
+        except (json.JSONDecodeError, TypeError):
+            pass
+    if getattr(profile, "story_elements", None):
+        parts.append(f"Extra story directions from the adventurer:\n{profile.story_elements}")
+    return "\n".join(parts) if parts else ""
+
+
 def _generate_via_gemini(system: str, user_msg: str) -> str | None:
     try:
         from google.genai import types
@@ -146,6 +197,54 @@ def _generate_via_anthropic(system: str, user_msg: str) -> str | None:
     return None
 
 
+def _pcm_to_wav(pcm_data: bytes, sample_rate: int = 24000, channels: int = 1, sample_width: int = 2) -> bytes:
+    """Wrap raw PCM bytes from Gemini TTS in a WAV container using Python's wave module."""
+    import io, wave
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(sample_width)  # 2 bytes = 16-bit PCM
+        wf.setframerate(sample_rate)
+        wf.writeframes(pcm_data)
+    return buf.getvalue()
+
+
+def generate_tts_audio(story_text: str) -> bytes | None:
+    """
+    Generate WAV audio for the given story text using Gemini TTS.
+    Returns raw WAV bytes, or None on failure.
+    Voice: Charon — deep and resonant, perfect for a dramatic narrator.
+    """
+    if not GEMINI_API_KEY:
+        return None
+    try:
+        from google import genai as _genai
+        from google.genai import types as _types
+
+        client = _genai.Client(api_key=GEMINI_API_KEY)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-preview-tts",
+            contents=story_text,
+            config=_types.GenerateContentConfig(
+                response_modalities=["AUDIO"],
+                speech_config=_types.SpeechConfig(
+                    voice_config=_types.VoiceConfig(
+                        prebuilt_voice_config=_types.PrebuiltVoiceConfig(
+                            voice_name="Charon",
+                        )
+                    )
+                ),
+            ),
+        )
+        raw = response.candidates[0].content.parts[0].inline_data.data
+        # google-genai SDK returns raw bytes directly — no base64 decoding needed
+        pcm_bytes = raw if isinstance(raw, bytes) else bytes(raw)
+        return _pcm_to_wav(pcm_bytes)
+    except Exception:
+        traceback.print_exc()
+        return None
+
+
 def generate_story_segment(db: Session, task: Task, profile: Profile) -> str | None:
     use_gemini = bool(GEMINI_API_KEY)
     use_anthropic = bool(ANTHROPIC_API_KEY)
@@ -155,6 +254,16 @@ def generate_story_segment(db: Session, task: Task, profile: Profile) -> str | N
     try:
         genre = profile.genre_preference or "fantasy"
         genre_tone = GENRE_TONES.get(genre, GENRE_TONES["fantasy"])
+
+        personal_ctx = _build_personal_context(profile)
+        personal_block = (
+            f"\n\nPERSONAL CONTEXT (weave these details naturally when relevant — "
+            f"do not force every detail into every paragraph):\n{personal_ctx}"
+            if personal_ctx else ""
+        )
+
+        feedback_ctx = _build_feedback_context(db)
+        feedback_block = f"\n\n{feedback_ctx}" if feedback_ctx else ""
 
         recent = (
             db.query(StorySegment)
@@ -170,7 +279,7 @@ def generate_story_segment(db: Session, task: Task, profile: Profile) -> str | N
 
         # Story ender: conclude the narrative
         if getattr(task, "story_ender", False) and recent:
-            system = CONCLUSION_SYSTEM.format(genre_tone=genre_tone)
+            system = CONCLUSION_SYSTEM.format(genre_tone=genre_tone) + personal_block + feedback_block
             user_msg = CONCLUSION_PROMPT.format(
                 previous_segments=prev_text,
                 task_title=task.title,
@@ -178,7 +287,7 @@ def generate_story_segment(db: Session, task: Task, profile: Profile) -> str | N
             )
         elif getattr(task, "story_ender", False) and not recent:
             # Edge case: first and only segment, user wants a conclusion — write a self-contained story
-            system = CONCLUSION_SYSTEM.format(genre_tone=genre_tone)
+            system = CONCLUSION_SYSTEM.format(genre_tone=genre_tone) + personal_block + feedback_block
             user_msg = f"""The adventurer completed a single quest. Write one self-contained paragraph (4–5 complete sentences) in second person, {genre_tone}, that tells a brief complete story using this quest as the central event. End with a sense of resolution, not a cliffhanger.
 
 Quest:
@@ -187,14 +296,14 @@ Title: {task.title}
 
 Write only the paragraph."""
         elif not recent:
-            system = FIRST_SEGMENT_SYSTEM.format(genre_tone=genre_tone)
+            system = FIRST_SEGMENT_SYSTEM.format(genre_tone=genre_tone) + personal_block + feedback_block
             user_msg = FIRST_SEGMENT_PROMPT.format(
                 genre_tone=genre_tone,
                 task_title=task.title,
                 task_desc=task_desc,
             )
         else:
-            system = CONTINUATION_SYSTEM.format(genre_tone=genre_tone)
+            system = CONTINUATION_SYSTEM.format(genre_tone=genre_tone) + personal_block + feedback_block
             user_msg = CONTINUATION_PROMPT.format(
                 previous_segments=prev_text,
                 task_title=task.title,

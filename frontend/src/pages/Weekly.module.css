@@ -10,7 +10,7 @@
   margin-bottom: 1.25rem;
   padding: 0.85rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(200, 168, 78, 0.015);
+  background: rgba(var(--accent-rgb), 0.015);
   border: 1px solid transparent;
   transition: border-color 0.3s ease, background 0.3s ease;
   animation: fadeSlideUp 0.35s ease-out both;
@@ -25,9 +25,9 @@
 .day:nth-child(8) { animation-delay: 0.21s; }
 
 .day.today {
-  border-color: rgba(200, 168, 78, 0.25);
+  border-color: rgba(var(--accent-rgb), 0.25);
   background: var(--accent-soft);
-  box-shadow: 0 0 24px rgba(200, 168, 78, 0.05);
+  box-shadow: 0 0 24px rgba(var(--accent-rgb), 0.05);
 }
 
 .day h2 {

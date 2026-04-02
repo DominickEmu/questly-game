@@ -31,3 +31,14 @@ def update_profile(body: ProfileUpdate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(profile)
     return profile
+
+
+@router.post("/profile/dev", response_model=ProfileOut)
+def dev_add_currency(db: Session = Depends(get_db)):
+    """Dev/testing only: add 999 coins and 999 gems."""
+    profile = _get_or_create_profile(db)
+    profile.coins += 999
+    profile.gems += 999
+    db.commit()
+    db.refresh(profile)
+    return profile

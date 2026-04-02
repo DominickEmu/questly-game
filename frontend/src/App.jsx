@@ -7,6 +7,7 @@ import Calendar from './pages/Calendar';
 import Shop from './pages/Shop';
 import Profile from './pages/Profile';
 import Story from './pages/Story';
+import Onboarding from './pages/Onboarding';
 import { api } from './api';
 
 export default function App() {
@@ -17,6 +18,22 @@ export default function App() {
   }, []);
 
   useEffect(() => { refreshProfile(); }, [refreshProfile]);
+
+  // Apply genre theme to <html> so CSS [data-theme] selectors activate
+  useEffect(() => {
+    const genre = profile?.genre_preference || 'fantasy';
+    if (genre === 'fantasy') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', genre);
+    }
+  }, [profile?.genre_preference]);
+
+  if (!profile) return null;
+
+  if (!profile.setup_complete) {
+    return <Onboarding profile={profile} onUpdate={refreshProfile} />;
+  }
 
   return (
     <div className="app">

@@ -20,7 +20,7 @@
 
 .equippedCard {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(200, 168, 78, 0.15);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 20px rgba(var(--accent-rgb), 0.15);
 }
 
 .imageWrap {

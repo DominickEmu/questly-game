@@ -25,6 +25,10 @@ class Profile(Base):
     equipped_face: Mapped[int | None] = mapped_column(Integer, nullable=True)
     equipped_body: Mapped[int | None] = mapped_column(Integer, nullable=True)
     equipped_hand: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    setup_complete: Mapped[bool] = mapped_column(Boolean, default=False)
+    interests: Mapped[str | None] = mapped_column(Text, nullable=True)
+    life_variables: Mapped[str | None] = mapped_column(Text, nullable=True)
+    story_elements: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class Task(Base):
@@ -53,8 +57,19 @@ class StorySegment(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     genre: Mapped[str] = mapped_column(Text, default="fantasy")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    rating: Mapped[int] = mapped_column(Integer, default=0)   # 1=like, -1=dislike, 0=unrated
+    feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     task: Mapped["Task"] = relationship()
+
+
+class StoryArchive(Base):
+    __tablename__ = "story_archives"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(Text, nullable=False, default="Untitled Chapter")
+    segments_json: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
 class ShopItem(Base):

@@ -13,7 +13,7 @@
 
 .toast {
   background: var(--accent-soft);
-  border: 1px solid rgba(200, 168, 78, 0.25);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
   color: var(--accent);
   padding: 0.6rem 1.15rem;
   border-radius: var(--radius-sm);
@@ -66,7 +66,7 @@
 
 .purchaseList li {
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgba(200, 168, 78, 0.06);
+  border-bottom: 1px solid rgba(var(--accent-rgb), 0.06);
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
@@ -75,3 +75,167 @@
   color: var(--text-muted);
   font-size: 0.8rem;
 }
+
+/* ── Reward cards with timer ─────────────────────────── */
+
+.rewardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.rewardCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.2s;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+.rewardCard:hover { border-color: var(--border-hover); }
+
+.rewardCardActive {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  box-shadow: 0 0 16px rgba(var(--accent-rgb), 0.08);
+}
+
+.rewardName {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rewardDesc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.rewardBuyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.rewardBuyBtn {
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.rewardBuyBtn:hover { background: rgba(var(--accent-rgb), 0.2); transform: none; }
+
+.timerDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.7rem;
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.timerIcon { font-size: 0.85rem; }
+
+.timerCount {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+
+.timerLabel { font-size: 0.7rem; color: var(--text-muted); }
+
+.timerClear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.timerClear:hover { opacity: 1; transform: none; }
+
+.timerExpired {
+  font-size: 0.8rem;
+  color: #c87828;
+  font-weight: 600;
+  padding: 0.3rem 0;
+}
+
+.timerPicker {
+  background: rgba(var(--accent-rgb), 0.04);
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  animation: fadeSlideUp 0.2s ease-out;
+}
+
+.timerPickerLabel {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.timerPresets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.timerPresetBtn {
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.timerPresetBtn:hover { background: rgba(var(--accent-rgb), 0.22); border-color: rgba(var(--accent-rgb), 0.4); transform: none; }
+
+.timerSkip {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+.timerSkip:hover { color: var(--text-secondary); transform: none; }
+
+.timerResetBtn {
+  background: none;
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.timerResetBtn:hover { color: var(--text-secondary); border-color: rgba(var(--accent-rgb), 0.3); transform: none; }

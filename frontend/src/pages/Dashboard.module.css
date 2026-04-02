@@ -11,9 +11,9 @@
   text-align: center;
   padding: 3rem 1rem;
   font-size: 0.95rem;
-  border: 1px dashed rgba(200, 168, 78, 0.1);
+  border: 1px dashed rgba(var(--accent-rgb), 0.1);
   border-radius: var(--radius-md);
-  background: rgba(200, 168, 78, 0.02);
+  background: rgba(var(--accent-rgb), 0.02);
   animation: fadeIn 0.4s ease-out;
 }
 

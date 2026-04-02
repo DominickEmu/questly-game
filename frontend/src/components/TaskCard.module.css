@@ -59,12 +59,12 @@
   font-weight: 700;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  background: rgba(200, 168, 78, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   color: var(--accent);
   white-space: nowrap;
   letter-spacing: 0.05em;
   text-align: center;
-  border: 1px solid rgba(200, 168, 78, 0.2);
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
 }
 
 .storyEnder {

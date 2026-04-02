@@ -20,7 +20,7 @@
   min-width: 300px;
   box-shadow:
     0 0 40px var(--accent-glow),
-    0 0 80px rgba(200, 168, 78, 0.08),
+    0 0 80px rgba(var(--accent-rgb), 0.08),
     0 20px 60px rgba(0, 0, 0, 0.5);
   animation: rewardBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -81,7 +81,7 @@
 }
 
 .levelUp {
-  background: linear-gradient(135deg, #f5d442, #c8a84e, #3eb43e);
+  background: linear-gradient(135deg, var(--gold-bright), var(--accent), var(--xp-green));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -99,8 +99,8 @@
   color: var(--text-secondary);
   margin-bottom: 1rem;
   padding: 0.45rem 0.85rem;
-  background: rgba(200, 168, 78, 0.08);
-  border: 1px solid rgba(200, 168, 78, 0.15);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.15);
   border-radius: var(--radius-sm);
   display: inline-block;
 }
@@ -114,7 +114,7 @@
     radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.06), transparent 55%),
     linear-gradient(135deg, rgba(40, 32, 20, 0.95), rgba(30, 24, 16, 0.96));
   box-shadow:
-    0 0 0 1px rgba(200, 168, 78, 0.18),
+    0 0 0 1px rgba(var(--accent-rgb), 0.18),
     0 10px 30px rgba(0, 0, 0, 0.65);
   text-align: left;
   animation: fadeSlideUp 0.3s ease-out;

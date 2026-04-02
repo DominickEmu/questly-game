@@ -17,6 +17,10 @@ class ProfileOut(BaseModel):
     equipped_face: int | None
     equipped_body: int | None
     equipped_hand: int | None
+    setup_complete: bool
+    interests: str | None
+    life_variables: str | None
+    story_elements: str | None
 
     model_config = {"from_attributes": True}
 
@@ -28,6 +32,10 @@ class ProfileUpdate(BaseModel):
     equipped_face: int | None = None
     equipped_body: int | None = None
     equipped_hand: int | None = None
+    setup_complete: bool | None = None
+    interests: str | None = None
+    life_variables: str | None = None
+    story_elements: str | None = None
 
 
 # ── Tasks ────────────────────────────────────────────────
@@ -84,11 +92,43 @@ class RewardOut(BaseModel):
 class StorySegmentOut(BaseModel):
     id: int
     task_id: int
+    task_title: str | None = None
+    content: str
+    genre: str
+    created_at: datetime
+    rating: int = 0
+    feedback: str | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class RateSegmentRequest(BaseModel):
+    rating: int  # 1=like, -1=dislike, 0=clear
+    feedback: str | None = None
+
+
+class ArchivedSegment(BaseModel):
+    id: int
+    task_id: int
+    task_title: str | None = None
     content: str
     genre: str
     created_at: datetime
 
-    model_config = {"from_attributes": True}
+
+class StoryArchiveOut(BaseModel):
+    id: int
+    title: str
+    segments: list[ArchivedSegment]
+    created_at: datetime
+
+
+class ArchiveRequest(BaseModel):
+    title: str
+
+
+class RenameArchiveRequest(BaseModel):
+    title: str
 
 
 # ── Shop ─────────────────────────────────────────────────
